@@ -1,0 +1,35 @@
+{
+  "sources.zip": {
+    "after-hyperref.sty": "47e6571e96692910e817e4876bbeea9357067ce92fcfc4b88e84e4ca026fdb48",
+    "iacrcc.cls": "871459a12bc0f41f1efe20b198b296e334af6bbb274d51ad37fa91a484cf5eca",
+    "main.tex": "dabfb6661ddaba49912c4117e8622c338b98bda20689d26c7e1add79e1817259",
+    "refs.bib": "15111676d7e97ac6dc37080e1550be9019fe7608a8fba118d2f54fe7217f9256"
+  },
+  "artifact.zip": {
+    "CERTIFICATE_LEVEL3.md": "aa69c47d631c67533c78a00f5b1ddb0f4ff0354391a335a29f38c0ebeb324797",
+    "LICENSE": "e93f420c86c91f8ec7e73752fef1f99158e2445428ea43197ddf823001e1507e",
+    "README.md": "6074217e958b7167aa0102d41708587f91c5187f6db9681bc12f736d0e9c7ca4",
+    "THEOREM_dimensional_obstruction.md": "f126f29ce72680e50ff17af44433369fa8914fed2c46754e8b1d60704b3039b3",
+    "requirements.txt": "9101128bb786a4dab198b7bb31109f469ed9902ad473d2b1f4b2f1b1b4b5470a",
+    "scripts/01_p9_ambivalence_verification.py": "694c3ac79e58af24ad115ddb7f5d86780592371faa8af31078106accd37dce5a",
+    "scripts/02_p13_collision_exhaustive.py": "552015f602a007e638fab2ce1bbb9f5e3fe915b5cd3b7cdbbcd439604617d409",
+    "scripts/03_p13_collision_scaling.py": "16d10854cff22c0a4e412b3ac486fa4e30b08f0db1914b8881d28438f98b0512",
+    "scripts/04_fourier_spectral_analysis.py": "015b833bab6d2ab58f3e90ca203ff3f62448ad967e9bc14f5b72446f51bd8b80",
+    "scripts/05_barrington_construction_verification.py": "8956b8b9cfc4be3f209792022b22b6486e75aae73fc6a008391725470a162626",
+    "scripts/06_contraction_operator.py": "9b708c4109222cac7579c07151c0679f61e6cc283a8f3c6e704202a5ed45262b",
+    "scripts/07_proof_T_independence.py": "e90d34da1246542c41daf846ab818b15fa2adc64d0edb12ad4515b0b1c6627a9",
+    "scripts/08_via3_conjunctions.py": "dc7a5f9f1f8d6d390afe4d31eea33f64bf09ae16ec7acdd440e16f0d1b3ef20c",
+    "scripts/09_io_investigation.py": "e57ea4d4ef793d89850062758b12c07722e024f3e8e1f34b5ac9eb964fd0e474",
+    "scripts/10_spectral_contraction_proof.py": "432f3c5d0c303f7ea2f874ac2bb3ae7c7af1c0228548b6e2aacc8fb7eede4b9d",
+    "scripts/11_eigenvector_analysis.py": "f7fb0de7184b6e6284ff1a1f52ca10b8fd0efd3014cc151f0a8796de4d9149aa",
+    "scripts/12_level3_exhaustive_verification.py": "4fddb42d24f80513f47af5d0587cae33b552b3c8f0c2f458360fdd2ae0cadb30",
+    "scripts/13_all_representations_contraction.py": "c4d6e70db05d2eb017b33a677706472b39e947945ab5ea1114e6d3e6d8bb4881",
+    "scripts/14_dimensional_obstruction_verification.py": "cf08ee6814d79599a556c68e2214b57b4d5a73c35bf4bcc764619d17f0b477bf",
+    "scripts/15_exact_proof_singular_values.py": "ea93f69db8360c12cfefac3afcee7dc1265b22b207982a39587b3921c536ccaa",
+    "scripts/16_conditioning_lemma_l4_verification.py": "d38a3d37deb8398b7016baa3e549549c02a461adbc445a78ca7954a0f6008ee5",
+    "scripts/17_ordered_orientation_crosscheck.py": "00cbc7c551dddd757e16701fe802620fdb137d45225464ab4cf508328734d27f",
+    "scripts/18_all_irreps_ordered_crosscheck.py": "4b7c452ff487ce9146090acbe569bc4f7c08b5749708f2b5b1bc7fedf47a02ff",
+    "scripts/19_ordered_level2_exact.py": "1cf40a367c9ac2975c875123ea173721e21b464b56781c8ee35040a0a6a93296",
+    "scripts/20_level3_exact_certificate.py": "abced911b3fbaf84afce35bb4b5cd6f323c004c5847d90b2f670272b8d51f2df"
+  }
+}

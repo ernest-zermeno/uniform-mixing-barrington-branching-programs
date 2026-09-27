@@ -1,0 +1,1460 @@
+\documentclass[version=final]{iacrcc}
+
+\license{CC-by}
+
+% Packages NOT included by iacrcc
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+% cleveref is loaded via after-hyperref.sty (required by iacrcc)
+
+% Observation is not defined by iacrcc.  It shares the theorem counter, and
+% cleveref (loaded by the class after the preamble) derives its reference type
+% from that counter, so \Cref would render "Theorem" for an observation.  All
+% cross-references to the observation below are therefore written explicitly as
+% "Observation~\ref{...}".
+\newtheorem{observation}[theorem]{Observation}
+
+% Math operators and commands from the paper
+\DeclareMathOperator{\tr}{tr}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\Id}{Id}
+\DeclareMathOperator{\negl}{negl}
+\newcommand{\norm}[1]{\lVert #1 \rVert}
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\frob}[1]{\norm{#1}_{\mathrm{F}}}
+\newcommand{\opn}[1]{\norm{#1}_{\mathrm{op}}}
+\newcommand{\dtv}{d_{\mathrm{TV}}}
+\newcommand{\Dhat}{\widehat{D}}
+\newcommand{\CC}{\mathrm{CC}}
+\newcommand{\BP}{\mathrm{BP}}
+
+\title[running={Uniform Mixing in Barrington Programs}]{Uniform Mixing in Barrington Branching Programs}
+\addauthor[inst={1},email={0244552@up.edu.mx},surname={Zermeno}]{Ernest Darell Zermeno}
+\addaffiliation[country={Mexico}]{Universidad Panamericana}
+
+\begin{document}
+
+\maketitle
+
+\keywords[Barrington branching programs, spectral contraction, Fourier analysis on finite groups, symmetric group, indistinguishability obfuscation, point functions]{Barrington branching programs, spectral contraction, Fourier analysis on finite groups, symmetric group, indistinguishability obfuscation, point functions}
+
+\begin{abstract}
+We study the distribution $D_T$ over the symmetric group $S_5$ induced by evaluating
+any fixed valid balanced transposition-template Barrington branching program for the
+point function $\CC_T$ on uniformly random inconsistent inputs. We prove two
+results for this template. First, $D_T = D_{T'}$ for all
+$T, T' \in \{0,1\}^\ell$ (exact T-independence), via a combinatorial flip bijection
+that requires no properties of the underlying group. Second,
+$\dtv(D_T, \mathrm{Uniform}(S_5)) \leq \negl(\ell)$ (spectral contraction),
+via Fourier analysis on $S_5$ using the Diaconis--Shahshahani Upper Bound Lemma.
+The contraction proof proceeds by exact computation of Fourier norms for the standard
+representation $(4,1)$ at the first two levels of the commutator tree, followed by
+exhaustive verification that the operator norm drops below~$1$ at the third level
+--- enabled by the discovery that the level-$2$ obstruction has a regular simplex
+structure in $\mathbb{R}^4$ that the commutator necessarily breaks. We further
+identify obstructions to extending this uniform contraction beyond $S_5$:
+for $S_n$ with $n \geq 6$ a dimensional obstruction forces every
+level-$2$ operator to have norm~$1$. At level~$3$, the maximum norm is~$1$
+for $S_6$ and $S_7$, although some configurations contract; for $n \geq 10$
+every configuration has norm~$1$ by a dimensional bound. The analysis presented
+here does not decide the intermediate cases $n \in \{8,9\}$.
+The two results combine into a quantitative statement about one exactly specified
+experiment: the $q$-sample transcript of terminal outputs obtained from fresh,
+independent, uniformly random inconsistent paths is exactly target-independent
+and within $\min\{1, q\,\varepsilon(\ell)\}$ of uniform, where $\varepsilon(\ell)$
+is our explicit single-sample bound (so the transcript remains negligibly close
+to uniform whenever $q = q(\ell)$ is polynomially bounded), and both properties survive
+target-independent post-processing. This gives an unconditional, quantitative
+terminal-output guarantee for the fixed transposition-template Barrington layer.
+\end{abstract}
+
+\begin{textabstract}
+We study the output distribution of a fixed valid balanced transposition-template Barrington branching program for a point function on uniformly random inconsistent inputs. We prove exact target-independence by a combinatorial flip bijection and negligible statistical distance from uniform on S_5 by finite-group Fourier analysis. A regular simplex describes the level-2 obstruction in the standard representation; the commutator structure breaks it at level 3. An exact integer certificate gives the uniform contraction constant 0.0355, and induction amplifies the contraction at higher levels. We also identify dimensional obstructions beyond S_5: the maximum level-3 norm is 1 for S_6 and S_7, although some configurations contract, and every level-3 configuration has norm 1 for n at least 10. The present analysis does not decide S_8 and S_9. Fresh independent terminal-output samples are exactly target-independent and remain negligibly close to uniform for polynomially many samples. These properties survive target-independent post-processing.
+\end{textabstract}
+
+
+%% ===================================================================
+\section{Introduction}
+\label{sec:intro}
+%% ===================================================================
+
+Indistinguishability obfuscation (iO) for general circuits is one of the most
+powerful primitives in cryptography, implying a vast array of applications from
+functional encryption to deniable encryption~\cite{GGH+13,SW14}. The first
+candidate constructions~\cite{GGH+13} were based on matrix branching programs
+over multilinear maps, randomized via Kilian's
+technique~\cite{Kil88}, following the classical correspondence established by
+Barrington's theorem~\cite{Bar89}: every $\mathrm{NC}^1$ circuit of depth $d$
+can be simulated by a branching program of width~$5$ and length at most $4^d$
+over the symmetric group $S_5$.
+
+Obfuscation of branching programs, and the mixed-input attacks studied against
+it~\cite{CVW18}, motivate the question we ask here: what distribution does
+such a program produce when it is evaluated on ``incorrect'' inputs?
+Specifically, for a point function $\CC_T : \{0,1\}^\ell
+\to \{0,1\}$ that outputs $1$ only on $x = T$, we study the fixed balanced
+transposition-template program $\BP_T$ described below: it produces a designated
+permutation $\pi_{\mathrm{accept}} \in S_5$ on input $T$ and the identity $e$ on
+all other inputs. When this program is evaluated on a random bit string
+$b \in \{0,1\}^L$ that is \emph{inconsistent} (at least one variable receives
+different values at different steps), the output is a random element of $S_5$
+whose distribution we denote $D_T$.
+
+Two properties of $D_T$ are natural to ask of this layer, and are the ones we
+establish:
+
+\begin{enumerate}[label=(\roman*)]
+\item \textbf{T-independence:} $D_T = D_{T'}$ for all $T, T'$: the marginal law
+  of the terminal output on a uniformly random inconsistent path is
+  \emph{exactly} independent of the target.
+\item \textbf{Uniform mixing:} $\dtv(D_T, \mathrm{Uniform}(S_5)) \leq \negl(\ell)$,
+  so that marginal is statistically close to uniform on $S_5$.
+\end{enumerate}
+
+\paragraph{The experiment we study.}
+Mixed-input evaluation---running a branching program on inputs that read a
+variable inconsistently---is the setting in which the algebraic behaviour of the
+$S_5$ layer is examined~\cite{CVW18}, and it is what motivates the question we
+ask. We fix one exactly specified experiment and analyse it in full: the
+$q$-sample \emph{terminal-output transcript}, in which each sample is the final
+permutation produced by $\BP_T$ on a fresh, independent, uniformly random
+inconsistent path (\Cref{def:terminal}). For the fixed balanced transposition
+template we prove that this transcript is \emph{exactly} target-independent and
+within $\min\{1, q\,\varepsilon(\ell)\}$ of uniform on $S_5^q$, where
+$\varepsilon(\ell)$ is the explicit single-sample bound of \Cref{thm:main}(b);
+in particular the transcript stays negligibly close to uniform whenever
+$q = q(\ell)$ is polynomially bounded. Both properties are preserved by any
+target-independent post-processing of the transcript (\Cref{cor:terminal}).
+
+Uniform sampling conditioned on inconsistency is an analytical average-case
+choice: it isolates the distributional behaviour of the fixed
+transposition-template Barrington layer outside consistent Boolean evaluations.
+We are not aware of an existing obfuscation security analysis that induces
+exactly this sampling law. The contribution is therefore a mathematical result
+about Barrington programs motivated by obfuscation.
+
+\paragraph{A construction-level illustration.}
+The GGH-style candidate of Garg et al.~\cite[full version, Sections~4.1--4.2]{GGH+13}
+illustrates the objects a security analysis must relate. Its public garbled
+program contains encodings of randomized step matrices for the available input
+choices, encoded endpoint vectors, a parallel dummy program, and public encoding
+parameters. For an unfixed input bit both choices are available; evaluation
+combines these encodings and tests the resulting expression. An adversary
+receives this entire collection and can form expressions across evaluations.
+
+Our theorem controls the terminal permutation of the plaintext template defined
+here under fresh uniform inconsistent-path sampling. This supplies a model for
+one underlying group-product distribution, without identifying our template
+with the branching program of that candidate. A cryptographic application would
+require a candidate-specific reduction relating the encoded view and its
+permitted operations to this sampling experiment, and controlling information
+beyond the terminal product. The terminal marginal alone does not establish
+statistical obfuscation or the security of an iO construction.
+
+\paragraph{Our contributions.}
+We prove both properties for every fixed valid transposition template (\Cref{def:validtemplate}).
+
+For T-independence, we give a short combinatorial proof (\Cref{thm:t-indep})
+via a flip bijection $F_S$ that maps inconsistent paths for $T$ to
+inconsistent paths for $T'$ while preserving the output permutation. The proof
+uses no property of $S_5$ and extends to conjunctions with wildcards.
+
+For uniform mixing, we develop a Fourier-analytic framework on $S_5$
+(\Cref{sec:contraction}). Using the Diaconis--Shahshahani Upper Bound
+Lemma, we reduce the problem to bounding the Fourier norms of the unconditional
+distribution $P_T$ in each irreducible representation, then transfer the bound to
+$D_T$ via a conditioning lemma (\Cref{lem:conditioning}). The standard
+representation $(4,1)$ of dimension~$4$ is the bottleneck; we therefore focus the
+exposition on it, while \Cref{prop:other_reps} and the level-$3$ certificate control
+all remaining non-trivial irreducibles, as the Diaconis--Shahshahani bound requires. We establish contraction at the first
+two levels of the commutator tree by exact symbolic computation
+(\Cref{thm:level01,thm:level12}), discover that the level-$2$ obstruction
+has a regular simplex structure (Observation~\ref{obs:simplex}), and prove that this
+structure is necessarily broken at level~$3$ (\Cref{thm:level23}). An exact
+integer Gram-form certificate over the full ordered universe then yields
+operator-norm contraction with $\lambda \leq 0.0355$. An inductive argument
+then gives doubly-exponential decay in the depth (\Cref{thm:induction}).
+
+The mixing bound holds for powers of two $\ell \geq 8$; the sampling hypotheses
+are collected in \Cref{rem:terminal-limits}. T-independence also extends to
+conjunctions with a fixed wildcard set. \Cref{sec:extensions} presents evidence
+for mixing in that setting and questions about other programs and finite groups.
+
+\paragraph{Related work.}
+Barak et al.~\cite{BGHSV01} showed that black-box obfuscation is impossible
+for general circuits, motivating the weaker notion of indistinguishability
+obfuscation.
+The first iO candidate from branching programs~\cite{GGH+13} was followed
+by constructions for specific function
+classes: lockable obfuscation for point functions from
+LWE~\cite{GKW17,WZ17}, conjunction obfuscation from noisy encodings
+and LPN~\cite{BKMPRS18,BLMZ19}, and entropic Ring-LWE
+approaches~\cite{BVWW16}.  The landmark result of Jain, Lin, and
+Sahai~\cite{JLS21} achieved iO for general circuits from well-founded
+assumptions, departing from the branching-program paradigm.  Recent
+lattice-based candidates~\cite{BDGM20,WW21,HJL25} depart from the $S_5$
+branching-program paradigm and rest on lattice assumptions, while impossibility
+results~\cite{DJMMV25} constrain the space of viable assumptions. Mixed-input
+evaluation --- running the program on inputs that read a variable
+inconsistently --- is the setting in which the algebraic behaviour of a
+branching-program layer is analysed~\cite{CVW18}, and is the setting of the
+experiment we study.  Annihilation attacks~\cite{MSZ16} demonstrated
+concrete vulnerabilities in early branching-program obfuscation candidates,
+underscoring the importance of understanding the algebraic structure of
+inconsistent evaluations.
+
+\paragraph{Random subproducts.}
+The unconditional law $P_T$ studied here is a \emph{random subproduct}: a fixed
+word $g_1^{\varepsilon_1}\cdots g_L^{\varepsilon_L}$ in which each prescribed
+group element is independently activated, $\varepsilon_i \sim \mathrm{Ber}(1/2)$.
+Such products have been studied as lazy-transposition shuffles and, more
+generally, under the name of group mixability~\cite{AH18,ABGV25}; those works ask
+whether one can \emph{choose} a sequence---typically together with its activation
+probabilities---whose product is exactly uniform, and show in particular that
+symmetric groups are mixable. Our setting differs in both respects: every
+activation probability is fixed to $1/2$, and the word is not free but is the
+recursive expansion of a valid balanced Barrington commutator template. Exact
+uniformity is then impossible for $P_T$, since each of its atoms has dyadic
+probability while $1/\abs{S_5} = 1/120$ is not dyadic. We instead prove an
+approximate-mixing bound, uniform over this constrained family, and transfer it
+to the conditioned law $D_T$ (\Cref{lem:conditioning}).
+
+Fourier-analytic methods for branching programs have a separate tradition
+in the pseudorandomness literature~\cite{RSV13,LPV22}, but those
+works use Fourier analysis on $\{0,1\}^n$ (the input space) to fool
+Boolean outputs of read-once programs.  Our analysis instead uses Fourier
+analysis on $S_5$ (the output group) to bound total variation of the
+group-valued output distribution of multi-read programs --- a fundamentally
+different analytic object requiring different tools.
+Canetti et al.~\cite{CCMR24} recently proposed a ``local mixing''
+framework for general-purpose obfuscation based on reversible circuits and
+thermodynamic arguments; their mixing notion is structural (circuit-level),
+whereas ours is distributional (output-group-level), making the two
+approaches complementary. Our analysis applies the Diaconis--Shahshahani
+framework~\cite{DS81} to the output group of the program.
+
+\paragraph{Techniques.}
+The proof of T-independence is purely combinatorial. The proof of spectral
+contraction uses three different methods at three different scales:
+exact symbolic algebra (levels~$0$--$2$), analytic structure and exact integer
+certification (level~$3$), with independent exhaustive numerical cross-checks,
+and analytic induction (levels~$4$+). The key discovery
+that bridges levels~$2$ and~$3$ is the simplex structure of the
+preserved directions: the $270$ out of $405$ level-$2$ configurations
+with operator norm~$1$ each preserve one of exactly $5$ directions in
+$\mathbb{R}^4$, forming a regular simplex with pairwise $\abs{\cos\theta} = 1/4$.
+An algebraic proof shows that valid level-$3$ configurations cannot share a
+preserved direction: within the stabilizer $\mathrm{Stab}(k) \cong S_4$,
+the derived series terminates at depth~$3$, forcing the outer commutator to be
+trivial. A separate analysis of $S_n$ for $n \geq 6$ shows that this mechanism
+is specific to $S_5$: the level-$1$ Fourier transform preserves a subspace of
+dimension $n-3$ in $\mathbb{R}^{n-1}$, and the intersection bound
+$2(n-3)-(n-1) = n-5 \geq 1$ forces $\opn{\Dhat_2} = 1$ for every level-$2$
+quadruple. At level~$3$, explicit norm-$1$ configurations rule out uniform
+contraction for $S_6$ and $S_7$, whereas a further dimensional bound forces
+every configuration to have norm~$1$ for $n \geq 10$. The analysis here does
+not decide $n \in \{8,9\}$.
+
+
+%% ===================================================================
+\section{Preliminaries}
+\label{sec:prelim}
+%% ===================================================================
+
+\subsection{Branching Programs and Barrington's Theorem}
+
+\begin{definition}[Permutation Branching Program]
+A \emph{permutation branching program} of width $w$ and length $L$ over a group
+$G \leq S_w$ is a sequence of instructions
+$\Pi = ((i_1, g_1^{(0)}, g_1^{(1)}), \ldots, (i_L, g_L^{(0)}, g_L^{(1)}))$,
+where each $i_j \in [\ell]$ is a variable index and $g_j^{(0)}, g_j^{(1)} \in G$.
+On input $x \in \{0,1\}^\ell$, the program evaluates
+$\Pi(x) = \prod_{j=1}^{L} g_j^{(x_{i_j})}$.
+The program $\alpha$-\emph{computes} a function $f$ if $\Pi(x) = \alpha$ when
+$f(x) = 1$ and $\Pi(x) = e$ when $f(x) = 0$.
+\end{definition}
+
+\begin{theorem}[Barrington~\cite{Bar89}]
+\label{thm:barrington}
+Every Boolean function computed by a circuit of depth $d$ can be
+$\alpha$-computed by a permutation branching program of width $5$ and
+length at most $4^d$ over $S_5$, for some $\alpha \neq e$.
+\end{theorem}
+
+The construction uses the \emph{commutator trick}: given programs $P$ and $Q$
+that $\alpha$-compute $f$ and $\beta$-compute $g$ respectively, the concatenation
+$P \cdot Q \cdot P^{-1} \cdot Q^{-1}$ computes $f \wedge g$ via the group
+commutator $[\alpha, \beta] = \alpha\beta\alpha^{-1}\beta^{-1}$. This works because
+$S_5$ contains enough non-commuting elements to choose $\alpha,\beta$ and their
+conjugates so that the required commutators remain non-identity at each gate.
+Non-identity elements can of course commute; the Barrington construction depends
+on these careful choices rather than on an arbitrary commutator being nontrivial.
+
+\begin{definition}[Valid balanced transposition template]
+\label{def:validtemplate}
+A \emph{balanced transposition template} $\mathcal{T}$ of level $r$ assigns a
+transposition of $S_5$ to each leaf of the complete binary tree of depth $r$,
+together with a fixed orientation at each node. Its \emph{target} is defined
+recursively: a level-$0$ configuration is a transposition, with target itself;
+a level-$(r{+}1)$ configuration is an ordered pair $(A,B)$ of level-$r$
+configurations, with target $\alpha_{(A,B)} = [\alpha_A, \alpha_B]$. The
+template is \emph{valid} if every configuration in it---each sub-block and the
+root---has non-identity target; equivalently, $\alpha_A \neq e$, $\alpha_B \neq e$
+and $[\alpha_A,\alpha_B] \neq e$ at every node. We refer to the valid
+configurations of a given level as valid \emph{pairs} (level~$1$),
+\emph{quadruples} (level~$2$) and \emph{level-$3$ configurations}.
+
+All point-function mixing bounds below are proved \emph{for every fixed valid
+balanced transposition template}: a template $\mathcal{T}$ is fixed first (it is
+what the comparison of two targets $T$ and $T'$ holds constant), and the bounds
+then hold uniformly over all valid templates. The notation $D_T$ suppresses the
+dependence on $\mathcal{T}$, which is fixed throughout. (Statements of wider
+scope---T-independence for a common instruction template, conjunctions, and other
+groups---are stated with their own hypotheses where they appear.)
+\end{definition}
+
+\paragraph{Non-vacuity.}
+Valid templates exist at every level $r\geq3$.  On the points
+$\{0,1,2,3,4\}$, the level-$3$ tree
+\[
+\mathcal{T}_3=
+\Bigl[
+  \bigl[[(01),(02)],[(01),(04)]\bigr],
+  \bigl[[(01),(02)],[(01),(13)]\bigr]
+\Bigr]
+\]
+is valid and has target $\rho=(01234)$.  Moreover,
+$[(02431),(02314)]=\rho$, and both inputs are conjugate to~$\rho$.
+Simultaneously conjugating all leaves of a valid template by a fixed group
+element preserves transposition leaves and validity while conjugating every
+internal target.  Thus two suitably conjugated copies of a level-$r$ template
+with target $\rho$ form a valid level-$(r+1)$ template with the same target;
+iteration proves the claim.
+
+\begin{definition}[Point Function]
+The point function $\CC_T : \{0,1\}^\ell \to \{0,1\}$ is defined by
+$\CC_T(x) = 1$ if and only if $x = T$.
+\end{definition}
+
+For point functions, we restrict to the following fixed balanced
+transposition-template construction. The template has $\ell$ leaves (one per bit
+position), each comparing $x_i$ to $T_i$. Leaf $i$ outputs a fixed transposition
+$\sigma_i$ when $x_i = T_i$ and the identity $e$ when $x_i \neq T_i$. The leaves
+are combined by a fixed balanced binary tree of commutators, with a fixed
+orientation at every internal node. When $\ell$ is a power of two, the tree has
+depth $\log_2 \ell$, yielding a program of length $L = 4^{\log_2 \ell}=\ell^2$.
+All statements below concern this template and the branch swaps induced by
+changing $T$. They do not claim uniform mixing for arbitrary width-$5$
+Barrington programs or for templates using only even permutations such as
+$5$-cycles.
+
+
+\subsection{\texorpdfstring{The Distribution $D_T$}{The Distribution D\_T}}
+
+\begin{definition}[Inconsistent Path]
+A bit string $b = (b_1, \ldots, b_L) \in \{0,1\}^L$ is \emph{inconsistent}
+with respect to the program $\Pi$ if there exist steps $j, j'$ reading the
+same variable ($i_j = i_{j'}$) with $b_j \neq b_{j'}$.
+\end{definition}
+
+\begin{definition}[$D_T$]
+Let $\mathcal{I} \subset \{0,1\}^L$ be the set of inconsistent paths.
+The instructions $g_j^{(\cdot)}$ are those of the program $\BP_T$ for the point
+function $\CC_T$; the subscript $T$ records this dependence (by
+\Cref{thm:t-indep}, $D_T$ is in fact independent of $T$).
+The distribution $D_T$ over $S_5$ is defined by
+\[
+D_T(\pi) = \Pr_{b \sim \mathrm{Uniform}(\mathcal{I})}
+\left[ \prod_{j=1}^{L} g_j^{(b_j)} = \pi \right].
+\]
+\end{definition}
+
+
+\subsection{\texorpdfstring{Representation Theory of $S_5$}{Representation Theory of S5}}
+
+The symmetric group $S_5$ has $7$ irreducible representations, labeled by
+partitions of $5$:
+
+\begin{center}
+\begin{tabular}{lccl}
+\toprule
+Partition $\lambda$ & Dimension $d_\lambda$ & $\chi_\lambda(\text{transposition})$ & Name \\
+\midrule
+$(5)$       & 1 & 1 & Trivial \\
+$(4,1)$     & 4 & 2 & Standard \\
+$(3,2)$     & 5 & 1 & --- \\
+$(3,1,1)$   & 6 & 0 & --- \\
+$(2,2,1)$   & 5 & $-1$ & Sign $\otimes$ $(3,2)$ \\
+$(2,1,1,1)$ & 4 & $-2$ & Sign $\otimes$ Standard \\
+$(1^5)$     & 1 & $-1$ & Sign \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The dimensional check confirms: $1^2 + 4^2 + 5^2 + 6^2 + 5^2 + 4^2 + 1^2 = 120 = |S_5|$.
+
+We call two transpositions $\sigma, \tau \in S_5$ a \emph{non-commuting pair}
+if $[\sigma, \tau] \neq e$, equivalently if they share exactly one element.
+There are $30$ such unordered pairs among the $10$ transpositions of $S_5$.
+
+For a matrix $M \in \mathbb{R}^{d \times d}$, we write
+$\frob{M}^2 = \tr(M^\top M) = \sum_{i,j} M_{ij}^2$ for the squared Frobenius
+norm and $\opn{M} = \max_{\norm{v}=1} \norm{Mv}$ for the operator norm
+(largest singular value).  The key inequality relating them is
+$\opn{M}^2 \leq \frob{M}^2 \leq d \cdot \opn{M}^2$.
+
+\begin{definition}[Standard Representation]
+The standard representation $\rho_{(4,1)} : S_5 \to \mathrm{GL}(\mathbb{R}^4)$
+acts on the hyperplane $V = \{v \in \mathbb{R}^5 : \sum_i v_i = 0\}$ by
+permuting coordinates. We use the orthonormal basis
+\begin{align*}
+f_1 &= (e_0 - e_1)/\sqrt{2}, \quad
+f_2 = (e_0 + e_1 - 2e_2)/\sqrt{6}, \\
+f_3 &= (e_0 + e_1 + e_2 - 3e_3)/\sqrt{12}, \quad
+f_4 = (e_0 + e_1 + e_2 + e_3 - 4e_4)/\sqrt{20},
+\end{align*}
+so that $\rho_{(4,1)}(\sigma)$ is orthogonal for all $\sigma \in S_5$.
+\end{definition}
+
+
+\subsection{The Diaconis--Shahshahani Upper Bound Lemma}
+
+\begin{theorem}[Diaconis--Shahshahani~\cite{DS81}]
+\label{thm:ds}
+For any probability distribution $Q$ on a finite group $G$,
+\[
+4 \cdot \dtv(Q, U)^2 \leq \sum_{\rho \neq \mathrm{trivial}}
+d_\rho \cdot \frob{\widehat{Q}(\rho)}^2,
+\]
+where the sum is over non-trivial irreducible representations $\rho$ of
+dimension $d_\rho$, $\widehat{Q}(\rho) = \sum_{g \in G} Q(g) \rho(g)$ is the
+Fourier transform, and $\frob{\cdot}$ denotes the Frobenius norm.
+\end{theorem}
+
+For $S_5$, the standard representation $(4,1)$ is the \emph{mixing
+bottleneck}. Although $(2,1,1,1) = \mathrm{sign} \otimes (4,1)$ shares the
+same normalized character ratio $\abs{\chi(\sigma)}/d_\rho = 1/2$, its leaf
+projection $\frac{1}{2}(I - \rho_{(4,1)}(\sigma))$ has rank~$1$ (versus
+rank~$3$ for $(4,1)$), causing it to contract at level~$1$ with operator
+norm $\leq (1/2)^3 = 1/8$. The remaining representations satisfy
+$\abs{\chi(\sigma)}/d_\rho \leq 1/5$ and likewise contract earlier
+(\Cref{prop:other_reps}). We therefore focus the exposition on
+$\frob{\Dhat(4,1)}^2$, while \Cref{prop:other_reps} and the level-$3$
+certificate control every other non-trivial irreducible, as the
+Diaconis--Shahshahani bound requires.
+
+
+%% ===================================================================
+\section{Exact T-Independence}
+\label{sec:t-indep}
+%% ===================================================================
+
+We first show that the output distribution carries no information about the
+target: for programs built from a common template, $D_T$ is literally
+independent of~$T$. The argument is a short combinatorial bijection that uses no
+property of~$S_5$, so we give it before the group-specific mixing analysis.
+
+\begin{theorem}[T-Independence]
+\label{thm:t-indep}
+Let $\BP_T$ be the Barrington branching program for the point function $\CC_T$
+over $\{0,1\}^\ell$, with all programs built from the same instruction template:
+the same variable-read sequence and the same transposition at each leaf, with the
+target $T$ only determining which branch receives that transposition. Then
+$D_T = D_{T'}$ for all $T, T' \in \{0,1\}^\ell$.
+\end{theorem}
+
+\begin{proof}
+Let $S = \{i : T_i \neq T'_i\}$ be the set of differing bit positions.
+Define $F_S : \{0,1\}^L \to \{0,1\}^L$ by
+\[
+F_S(b)_j =
+\begin{cases}
+1 - b_j & \text{if } i_j \in S, \\
+b_j & \text{otherwise},
+\end{cases}
+\]
+where $i_j$ is the variable read at step $j$.
+
+We verify three properties:
+
+\textbf{(1) $F_S$ is an involution on $\{0,1\}^L$.}
+Applying $F_S$ twice flips each bit in $S$-positions twice, returning to
+the original string. Hence $F_S \circ F_S = \Id$, and in particular $F_S$
+is a bijection on the full space $\{0,1\}^L$.
+
+\textbf{(2) $F_S$ preserves inconsistency.}
+$F_S$ flips \emph{all} readings of each variable $x_i$ with $i \in S$
+simultaneously. If all readings of $x_i$ were equal (say, all $0$), after
+flipping they are all $1$ --- still consistent. If some readings differed,
+after flipping they still differ. Variables with $i \notin S$ are unaffected.
+Therefore inconsistency of each variable is preserved individually.
+
+\textbf{(3) $\varphi_{T'}(b) = \varphi_T(F_S(b))$ for all $b$.}
+At each step $j$ reading variable $x_{i_j}$:
+\begin{itemize}[nosep]
+\item If $i_j \notin S$: $T_{i_j} = T'_{i_j}$ and $F_S$ does not flip $b_j$.
+  Same input, same target bit, same output.
+\item If $i_j \in S$: $T'_{i_j} = 1 - T_{i_j}$ and $F_S$ flips $b_j$.
+  The swap of target bit and input bit cancel:
+  $g_j^{(b_j)}$ under $T'$ equals $g_j^{(1-b_j)}$ under $T$, which equals
+  $g_j^{(F_S(b)_j)}$ under $T$.
+\end{itemize}
+Hence the per-step outputs, and their product, are equal.
+
+Combining (1)--(3):
+\begin{align*}
+D_{T'}(\pi) &= \Pr[\varphi_{T'}(b) = \pi \mid b \in \mathcal{I}] \\
+&= \Pr[\varphi_T(F_S(b)) = \pi \mid b \in \mathcal{I}] \tag{by (3)} \\
+&= \Pr[\varphi_T(b') = \pi \mid F_S^{-1}(b') \in \mathcal{I}]
+\tag{substituting $b' = F_S(b)$} \\
+&= \Pr[\varphi_T(b') = \pi \mid b' \in \mathcal{I}]
+\tag{by (2), since $F_S = F_S^{-1}$ by (1)} \\
+&= D_T(\pi). \qedhere
+\end{align*}
+\end{proof}
+
+\begin{remark}
+The proof uses no property of $S_5$ --- it works for branching programs of
+any width over any group, provided the programs for different targets share the
+same instruction template and differ only in branch assignment at the literals
+whose target bit changes. Thus the argument is not specific to Barrington's
+particular choice of transpositions, but it is a template-level statement rather
+than a statement about arbitrary independently chosen programs.
+\end{remark}
+
+\begin{remark}
+The proof extends to conjunctions with wildcards: if position $i$ is a wildcard,
+the corresponding leaf outputs the same permutation $\sigma_i$ for both bit values.
+Flipping $b_j$ at wildcard positions changes both branches identically, so the output
+is unchanged. The bijection $F_S$ is restricted to non-wildcard differing positions.
+\end{remark}
+
+\begin{remark}[Unconditional T-independence]
+\label{rem:unconditional}
+The bijection $F_S$ preserves inconsistency of each variable individually
+(property~(2)), and therefore also preserves the set of \emph{consistent}
+paths. Consequently, $D_T = D_{T'}$ holds not only for the distribution
+conditioned on inconsistent paths, but also for the unconditional distribution
+over all $2^L$ paths and for the distribution over consistent paths alone.
+The conditioning on inconsistency is what makes the mixing statement meaningful
+--- on consistent paths the output is determined by the input, and the accepting
+input is $T$ itself --- but it is not needed for T-independence, which holds for
+all three laws.
+\end{remark}
+
+\begin{remark}[Template dependence]
+\label{rem:grouping}
+The flip bijection compares targets inside a fixed instruction template: the
+same variable-read sequence, the same leaf transpositions, and the same
+commutator tree. It should not be read as an invariance statement over different
+templates. Changing the grouping of leaves or the orientation of internal
+commutators can change the conditioned distribution, even when the resulting
+program computes the same point function. The spectral results below are
+therefore stated for the fixed balanced template.
+\end{remark}
+
+
+%% ===================================================================
+\section{Spectral Contraction}
+\label{sec:contraction}
+%% ===================================================================
+
+Having established that $D_T$ is $T$-independent, we now prove the harder
+property: that $D_T$ is negligibly close to uniform on~$S_5$. This is where the
+representation theory of $S_5$ enters, and the crux is a level-$2$-to-level-$3$
+step in which a hidden simplex geometry forces contraction. Since $D_T$ is
+independent of $T$ (\Cref{thm:t-indep}), it suffices to show
+$\dtv(D_T, U) \leq \negl(\ell)$ for any fixed $T$; by the
+Diaconis--Shahshahani bound (\Cref{thm:ds}), this reduces to bounding
+$\frob{\Dhat(\rho)}^2$ for each non-trivial representation $\rho$.
+
+\begin{lemma}[Conditioning]
+\label{lem:conditioning}
+The Fourier analysis below operates on the \emph{unconditional} distribution
+$P_T$ in which each of the $L$ bits is drawn independently and uniformly; its
+Fourier transform factorizes as a product of per-leaf projection operators
+$P_\sigma$. Let $p = \Pr[b \text{ consistent}]$ and let $C_T$ denote the
+distribution conditioned on consistent paths, so that
+$P_T = (1-p)\,D_T + p\,C_T$. Then
+\[
+\dtv(D_T, U) \;\leq\; \dtv(P_T, U) + p\,\dtv(D_T, C_T)
+\;\leq\; \dtv(P_T, U) + p .
+\]
+For the point-function program every variable is read at least once, so the
+consistent paths are in bijection with $\{0,1\}^\ell$; hence
+$p = 2^\ell / 2^L = 2^{-\ell(\ell-1)}$ (using $L = \ell^2$), which is negligible.
+\end{lemma}
+
+\begin{proof}
+From $P_T = (1-p)\,D_T + p\,C_T$ we get $P_T - D_T = p\,(C_T - D_T)$, so
+$\dtv(D_T, P_T) = p\,\dtv(D_T, C_T) \leq p$. The triangle inequality
+$\dtv(D_T, U) \leq \dtv(D_T, P_T) + \dtv(P_T, U)$ then gives the bound. The count
+$\abs{\{b : b \text{ consistent}\}} = 2^\ell$ holds because each of the $\ell$
+variables is read at least once, so assigning a single value to each variable is a
+bijection onto the consistent paths.
+\end{proof}
+
+\begin{remark}[Sign representation vanishes identically]
+\label{rem:sign}
+For the sign representation $(1^5)$, the leaf Fourier transform is
+$\Dhat(\mathrm{sign}) = \frac{1}{2}(\mathrm{sign}(\sigma) + 1) = 0$
+for any transposition~$\sigma$, since $\mathrm{sign}(\sigma) = -1$.
+This propagates to all levels by multiplicativity, so the sign
+representation contributes nothing to the Diaconis--Shahshahani bound.
+The sum thus runs over $5$ (not $6$) non-trivial representations.
+\end{remark}
+
+\begin{proposition}[Contraction in the remaining representations]
+\label{prop:other_reps}
+For all five non-trivial, non-sign representations $\rho$ of $S_5$, the
+operator norm $\opn{\Dhat_3(\rho)}$ is strictly less than $1$ for every
+valid level-$3$ configuration. The representation $(4,1)$ is the unique
+bottleneck:
+\begin{center}
+\begin{tabular}{lcccl}
+\toprule
+$\rho$ & $d_\rho$ & Leaf rank & Numerical $\max\opn{\Dhat_3(\rho)}$ & First level $< 1$ \\
+\midrule
+$(4,1)$     & 4 & 3 & $3.54 \times 10^{-2}$ & Level $3$ \\
+$(3,2)$     & 5 & 3 & $1.93 \times 10^{-5}$ & Level $2$ \\
+$(3,1,1)$   & 6 & 3 & $1.05 \times 10^{-5}$ & Level $2$ \\
+$(2,2,1)$   & 5 & 2 & $< 10^{-10}$          & Level $1$ \\
+$(2,1,1,1)$ & 4 & 1 & $< 10^{-10}$          & Level $1$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+The representations $(2,1,1,1) = \mathrm{sign} \otimes (4,1)$ and
+$(2,2,1) = \mathrm{sign} \otimes (3,2)$ have leaf projections of rank $1$
+and $2$ respectively.  For rank-$1$ projections $P_\sigma = v_\sigma v_\sigma^\top$,
+the level-$1$ operator $(P_\sigma P_\tau)^2 = \langle v_\sigma, v_\tau \rangle^3
+\, v_\sigma v_\tau^\top$, giving
+$\opn{(P_\sigma P_\tau)^2} = \abs{\langle v_\sigma, v_\tau \rangle}^3 = (1/2)^3 = 1/8$
+for non-commuting pairs.  So these representations contract immediately at level~$1$. The representations $(3,2)$ and $(3,1,1)$
+have rank-$3$ leaf projections like $(4,1)$, but lack the simplex
+obstruction (Observation~\ref{obs:simplex}): all $405$ level-$2$ quadruples have
+operator norm $< 0.085$, so they contract one level earlier.
+The displayed values are independently reproduced in floating point over the
+full ordered level-$3$ universe (Script~$18$). The uniform bound used in the
+paper is certified separately in exact integer arithmetic for all five
+representations (Script~$20$; \Cref{sec:computation}).
+\end{proposition}
+
+We focus on the bottleneck representation $(4,1)$.
+
+
+\subsection{Framework: Projections and the Fourier Domain}
+\label{sec:framework}
+
+For a transposition $\sigma = (a\;b) \in S_5$, the standard representation
+$\rho_{(4,1)}(\sigma)$ has eigenvalues $\{+1, +1, +1, -1\}$ (three fixed
+directions and one flipped). The Fourier transform of the leaf distribution
+$\{\sigma : 1/2,\; e : 1/2\}$ is
+\[
+P_\sigma \coloneqq \frac{1}{2}\bigl(\rho_{(4,1)}(\sigma) + I_4\bigr),
+\]
+which is a rank-$3$ orthogonal projection (idempotent, symmetric, trace $3$).
+
+\begin{lemma}
+\label{lem:proj_basic}
+For any transposition $\sigma \in S_5$:
+\begin{enumerate}[label=(\alph*),nosep]
+\item $P_\sigma^2 = P_\sigma$ (idempotent),
+\item $P_\sigma^\top = P_\sigma$ (symmetric),
+\item $\mathrm{rank}(P_\sigma) = 3$,
+\item $\frob{P_\sigma}^2 = \tr(P_\sigma) = 3$.
+\end{enumerate}
+\end{lemma}
+
+The null space of $P_\sigma$ is spanned by the projection of $e_a - e_b$
+onto the hyperplane $V$, where $\sigma = (a\;b)$.
+
+Throughout this section, $\Dhat_r$ denotes the Fourier operator of a level-$r$
+configuration of the \emph{unconditional} law $P_T$ (independent uniform bits at
+every step); it is not the Fourier transform of the conditioned law $D_T$, which
+enters only through the conditioning lemma (\Cref{lem:conditioning}).
+At each level of the Barrington commutator tree, this operator is a product
+of projections. For the single AND block at level~$1$ using transpositions $\sigma, \tau$
+(with $\sigma^{-1} = \sigma$, $\tau^{-1} = \tau$ since they are transpositions):
+\[
+\Dhat_1 = P_\sigma \cdot P_\tau \cdot P_\sigma \cdot P_\tau = (P_\sigma P_\tau)^2.
+\]
+At level~$2$, using two level-$1$ blocks $A$ (with $\sigma_1, \tau_1$) and
+$B$ (with $\sigma_2, \tau_2$):
+\[
+\Dhat_2 = (P_{\sigma_1} P_{\tau_1})^2 \cdot (P_{\sigma_2} P_{\tau_2})^2
+\cdot (P_{\tau_1} P_{\sigma_1})^2 \cdot (P_{\tau_2} P_{\sigma_2})^2,
+\]
+where the inverse blocks reverse the transposition order.
+
+
+\subsection{Level 0 to Level 1 Contraction}
+
+\begin{theorem}[Universal Level-$1$ Contraction]
+\label{thm:level01}
+For any non-commuting pair of transpositions $(\sigma, \tau)$ in $S_5$:
+\[
+\frob{(P_\sigma P_\tau)^2}^2 = \frac{129}{64}.
+\]
+The contraction ratio is $\frac{129/64}{3} = \frac{43}{64} \approx 0.6719$,
+and is \textbf{universal} --- identical for all $30$ non-commuting transposition pairs.
+\end{theorem}
+
+\begin{proof}
+There are $\binom{5}{2} = 10$ transpositions in $S_5$, forming $30$
+non-commuting pairs (sharing exactly one element).
+For each pair, we compute $(P_\sigma P_\tau)^2$ in the orthonormal basis of
+\Cref{sec:prelim} using exact symbolic arithmetic over algebraic numbers (the
+basis vectors carry radicals, which are represented exactly), and verify
+$\frob{(P_\sigma P_\tau)^2}^2 = 129/64$.
+
+The universality follows from the geometry of the standard representation:
+the null vectors of $P_\sigma$ and $P_\tau$ (projections of $e_a - e_b$ and
+$e_c - e_d$ onto $V$) have inner product $\pm 1/2$ for all non-commuting pairs,
+determined by the simplex geometry of $\{e_0, \ldots, e_4\}$ in $V$.
+Since $\frob{(P_\sigma P_\tau)^2}^2$ depends only on this angle, it is
+universal.
+\end{proof}
+
+
+\subsection{Level 1 to Level 2 Contraction}
+
+\begin{theorem}[Level-$2$ Contraction]
+\label{thm:level12}
+For any valid quadruple of transpositions $(\sigma_1, \tau_1, \sigma_2, \tau_2)$
+with $[\sigma_i, \tau_i] \neq e$ and $[[\sigma_1,\tau_1], [\sigma_2,\tau_2]] \neq e$:
+\[
+\frob{\Dhat_2}^2 \leq \frac{67586345}{67108864} \approx 1.0071.
+\]
+The contraction ratio relative to level $1$ is at most
+$\frac{67586345/67108864}{129/64} \approx 0.4997 < 1$.
+\end{theorem}
+
+\begin{proof}
+We first enumerate the reduced orientation quotient: $405$ valid quadruple
+classes from the $30$ non-commuting unordered level-$1$ pairs, with the
+additional constraint that the outer commutator is nontrivial. For each class,
+we compute $\Dhat_2$ in exact symbolic arithmetic over algebraic numbers and
+evaluate $\frob{\Dhat_2}^2$. The reduced computation yields $16$ distinct Frobenius
+norms, ranging from $82431849/1073741824 \approx 0.077$ to the worst case
+$67586345/67108864$.
+
+Because the theorem is stated for ordered quadruples, we also run the ordered
+level-$2$ exact cross-check (Script~$19$): $60$ ordered level-$1$ pairs give
+$3240$ ordered valid level-$2$ blocks. This larger ordered universe has $17$
+distinct Frobenius norms (one additional non-maximal value), but the same
+maximum $67586345/67108864$.
+\end{proof}
+
+
+\subsection{The Simplex Obstruction}
+\label{sec:simplex}
+
+Despite the Frobenius-norm contraction at level~$2$, the operator norm
+$\opn{\Dhat_2}$ equals $1$ for $270$ of the $405$ valid quadruples,
+blocking a naive submultiplicativity argument for higher levels.
+The following observation explains the structure of this obstruction.
+
+\begin{observation}[Simplex Structure]
+\label{obs:simplex}
+The $270$ quadruples with $\opn{\Dhat_2} = 1$ each preserve exactly one direction
+in $\mathbb{R}^4$ (as the eigenvector of $\Dhat_2^\top \Dhat_2$ with eigenvalue $1$).
+These directions are precisely the projections of the $5$ standard basis vectors
+$e_0, \ldots, e_4 \in \mathbb{R}^5$ onto the hyperplane $V = \{\sum v_i = 0\}$:
+\[
+v_k = \frac{e_k - \bar{e}}{\norm{e_k - \bar{e}}}, \quad
+\bar{e} = \tfrac{1}{5}(1,1,1,1,1)^\top, \quad k = 0, \ldots, 4.
+\]
+These $5$ directions form a \textbf{regular simplex} in $\mathbb{R}^4$, with
+pairwise inner products $\abs{\langle v_i, v_j \rangle} = 1/4$ for all $i \neq j$.
+Each direction is preserved by exactly $54$ quadruples (perfectly symmetric).
+\end{observation}
+
+Observation~\ref{obs:simplex} is an exhaustive census. The following lemma supplies the
+structural implication that the level-$3$ argument actually uses: preserving
+$v_k$ forces every leaf of the block to fix the point $k$.
+
+\begin{lemma}[Stabilizer characterization of preserved directions]
+\label{lem:stab-char}
+Let $B$ be a valid level-$2$ block with leaf transpositions
+$\sigma_1, \tau_1, \sigma_2, \tau_2$, and let $\Dhat_2(B)$ be its level-$2$
+operator in the standard representation. For each $k \in \{0,\dots,4\}$:
+\[
+\norm{\Dhat_2(B)\, v_k} = \norm{v_k}
+\qquad\Longleftrightarrow\qquad
+\sigma_i(k) = \tau_i(k) = k \ \ (i = 1,2),
+\]
+and in that case $\Dhat_2(B)\, v_k = v_k$. Equivalently: a level-$2$ block
+preserves the direction $v_k$ if and only if all four of its leaf
+transpositions lie in the point stabilizer $\mathrm{Stab}(k) \cong S_4$.
+\end{lemma}
+
+\begin{proof}
+Write $\Dhat_2(B) = P_{t_1} P_{t_2} \cdots P_{t_r}$ as the product of the
+$r = 16$ leaf projections appearing in its expansion (each factor is
+$P_t = \frac{1}{2}(\rho_{(4,1)}(t) + I)$ for one of the four leaf
+transpositions~$t$; the inverse sub-blocks contribute the same projections in
+reversed order, since each transposition is an involution). By
+\Cref{lem:proj_basic} every $P_t$ is an orthogonal projection, hence
+$\norm{P_t w} \leq \norm{w}$ for all $w$.
+
+$(\Rightarrow)$ Suppose $\norm{\Dhat_2(B)v_k} = \norm{v_k}$. Setting
+$w_0 = v_k$ and $w_j = P_{t_{r-j+1}} w_{j-1}$, the chain
+\[
+\norm{v_k} = \norm{w_r} \leq \norm{w_{r-1}} \leq \cdots \leq \norm{w_0}
+= \norm{v_k}
+\]
+collapses to equality at every step. For an orthogonal projection,
+$\norm{P w} = \norm{w}$ forces $Pw = w$ (indeed
+$\norm{w}^2 = \norm{Pw}^2 + \norm{(I-P)w}^2$, so $\norm{(I-P)w} = 0$).
+Applying this successively gives $P_{t}\,v_k = v_k$ for every leaf
+transposition $t$ occurring in the product.
+
+Now $P_t v_k = v_k$ means $\rho_{(4,1)}(t)\,v_k = v_k$. Since $v_k$ is the
+projection of the basis vector $e_k$ onto the sum-zero hyperplane $V$ and
+$\rho_{(4,1)}$ is the restriction of the permutation action to $V$, we have
+$\rho_{(4,1)}(t)\,v_k = v_{t(k)}$. The five vectors $v_0,\dots,v_4$ are
+pairwise distinct (they satisfy $\langle v_i, v_j\rangle = -1/4 \neq 1$ for
+$i \neq j$), so $v_{t(k)} = v_k$ forces $t(k) = k$. Hence every leaf
+transposition of $B$ fixes $k$, i.e.\ all four lie in $\mathrm{Stab}(k)$.
+
+$(\Leftarrow)$ If all four leaf transpositions fix $k$ then
+$\rho_{(4,1)}(t) v_k = v_{t(k)} = v_k$ for each of them, so $P_t v_k = v_k$ and
+therefore $\Dhat_2(B) v_k = v_k$, which has the same norm as $v_k$.
+\end{proof}
+
+The regularity of this structure --- five directions, uniform distribution,
+constant pairwise angle --- might suggest a general phenomenon. The following
+theorem shows the opposite: the simplex structure is specific to $S_5$, and
+for $S_n$ with $n \geq 6$ a dimensional obstruction prevents the same
+level-$2$ direction-mixing argument from proving a uniform level-$3$ gap.
+
+\begin{theorem}[Dimensional obstruction for $S_n$, $n \geq 6$]
+\label{thm:dim-obstruction}
+For $S_n$ with $n \geq 5$, the level-$1$ Fourier transform
+$\Dhat_1 = (P_\sigma P_\tau)^2$ in the standard representation $(n-1,1)$
+has singular values $\underbrace{1, \ldots, 1}_{n-3},\; 1/8,\; 0$.
+In particular, $\Dhat_1$ preserves a subspace of dimension $n-3$ isometrically.
+
+For $n \geq 6$, the minimum intersection of two such preserved subspaces
+in $\mathbb{R}^{n-1}$ is $2(n-3)-(n-1) = n-5 \geq 1$, so every valid level-$2$
+quadruple has $\opn{\Dhat_2} = 1$ and the simplex-breaking mechanism of
+\Cref{lem:mixing} does not extend by the same argument. At level~$3$, the
+maximum operator norm is~$1$ for $S_6$ and $S_7$, whereas every configuration
+has norm~$1$ for $n \geq 10$. Thus $S_5$ is the only case with uniform
+level-$3$ contraction among the cases settled here; the present analysis does
+not decide $n \in \{8,9\}$.
+\end{theorem}
+
+\begin{proof}
+The projections $P_\sigma = I_V - v_\sigma v_\sigma^\top$ and
+$P_\tau = I_V - v_\tau v_\tau^\top$ (where $v_\sigma, v_\tau$ are the unit
+null vectors of the transpositions in~$V$) share the property that
+$\langle v_\sigma, v_\tau \rangle = -1/2$, after choosing their signs, for all non-commuting pairs
+(independent of~$n$). Decomposing $V = W \oplus W^\perp$ where
+$W = \mathrm{span}(v_\sigma, v_\tau)$ has dimension~$2$: on $W^\perp$
+(dimension $n-3$), both projections act as the identity, so
+$\Dhat_1 = (P_\sigma P_\tau)^2 = I$ on $W^\perp$, contributing $n-3$
+singular values equal to~$1$. On~$W$, the restriction is a $2 \times 2$
+block independent of~$n$; a direct computation gives
+$\Dhat_1^\top \Dhat_1\big|_W$ with eigenvalues $1/64$ and~$0$
+(trace $= 4/256$, determinant $= 0$), so the singular values on $W$
+are $1/8$ and~$0$.
+
+For $n \geq 6$: two subspaces of dimension $n-3$ in $\mathbb{R}^{n-1}$
+intersect in dimension $\geq 2(n-3) - (n-1) = n-5 \geq 1$. Any unit vector
+in this intersection is preserved isometrically by both level-$1$ sub-blocks
+of a level-$2$ commutator, so $\opn{\Dhat_2} = 1$ for every valid quadruple.
+
+The same counting one step up controls level~$3$. Each level-$2$ operator with
+$\opn{\Dhat_2} = 1$ fixes a subspace of dimension $\geq n-5$, and two such
+subspaces in $\mathbb{R}^{n-1}$ share a common fixed vector once
+$2(n-5)-(n-1) = n-9 \geq 1$, i.e.\ for $n \geq 10$; then $\opn{\Dhat_3} = 1$ as
+well. The value $n = 9$ is exactly where disjoint placement becomes possible
+again, so the dimensional argument alone does not settle $n \in \{8,9\}$. For the
+two immediate neighbours, the depth-$3$ seed given after
+\Cref{def:validtemplate}, viewed in $S_6$ or $S_7$, remains valid and fixes
+the last point. Every leaf projection therefore fixes the nonzero vector
+$(1,\ldots,1,-(n-1))\in V$, so its level-$3$ operator has norm~$1$.
+Script~$14$ also checks the maximum numerically over the reduced census of
+$1{,}242{,}915$ configurations in $S_6$ and $10{,}282{,}335$ in $S_7$.
+This is a statement about the maximum, not every configuration: the script
+includes exact Gram-form certificates for strictly contractive examples in
+both groups. Thus uniform level-$3$ contraction fails in these two cases.
+\end{proof}
+
+\begin{remark}
+The one-dimensional simplex mechanism of Observation~\ref{obs:simplex} does not
+generalize cleanly to $S_n$ for $n \geq 6$: exhaustive computation confirms
+that all $1620$ quadruples in the reduced census for $S_6$ and all $4725$ for $S_7$ have
+operator norm $1$ (versus $270/405 = 66.7\%$ for $S_5$).  In these larger
+groups the preserved isometric subspaces have forced positive-dimensional
+intersections rather than the disjoint direction placement that drives the
+$S_5$ argument. \Cref{thm:dim-obstruction} explains this: $S_5$ is the unique
+case where the preserved subspace dimension ($n-3 = 2$) is small enough
+relative to the ambient dimension ($n-1 = 4$) to permit disjoint placement.
+The theorem is verified by two independent methods, including exact symbolic
+arithmetic over all adjacent pairs in $S_5, S_6, S_7$ and exhaustive
+enumeration of the reduced level-$2$ censuses (Scripts~$14$ and~$15$).
+\end{remark}
+
+An immediate consequence is that the level-$3$ spectral contraction mechanism
+presented here does not directly extend to the width $> 5$ programs that appear
+in optimized obfuscation constructions avoiding Barrington's $4^d$
+blowup~\cite{AGIS14}. Establishing unconditional mixing for such programs
+requires fundamentally different techniques, which we discuss in
+\Cref{sec:extensions}.
+
+
+\subsection{Level 2 to Level 3 Contraction}
+
+\paragraph{Why switch to the operator norm.}
+The Frobenius norm tracks total ``energy'' of the Fourier operator and is
+computed exactly at the first two levels (Theorems~\ref{thm:level01}--\ref{thm:level12});
+the induction from level~$3$ onward uses the operator norm.
+However, the worst-case $\frob{\Dhat_2}^2 \approx 1.007 > 1$, so the
+absolute Frobenius norm has not yet dropped below~$1$, and an inductive
+argument based on Frobenius norms alone does not yield $\frob{\Dhat_d} \to 0$.
+The operator norm resolves this: once $\opn{\Dhat_3} < 1$,
+submultiplicativity raises the uniform level-$d$ bound to its fourth power,
+which iterates to doubly-exponential decay in the depth.  The cost is that we need
+operator-norm contraction at level~$3$ for \emph{every} configuration,
+not just worst-case Frobenius contraction.
+
+\begin{lemma}[Direction Mixing]
+\label{lem:mixing}
+For every valid level-$3$ configuration $(\mathrm{quad}_A, \mathrm{quad}_B)$
+in which both sub-blocks have $\opn{\Dhat_2} = 1$, the two sub-blocks
+preserve \textbf{different} directions. Specifically, of the $29160$ such pairs,
+zero share the same preserved direction.
+\end{lemma}
+
+\begin{proof}
+Suppose for contradiction that both $\mathrm{quad}_A$ and $\mathrm{quad}_B$
+preserve the same direction $v_k$ (the projection of $e_k$ onto $V$).
+By \Cref{lem:stab-char}, a quadruple preserving $v_k$ consists of transpositions
+that fix element $k$, so all four transpositions in each sub-block lie in
+the stabilizer $\mathrm{Stab}(k) \cong S_4$.
+
+The derived series of $S_4$ is
+$S_4 \rhd A_4 \rhd V_4 \rhd \{e\}$,
+where $V_4 = \{e, (01)(23), (02)(13), (03)(12)\}$ is the Klein four-group
+(abelian).  In the Barrington commutator tree:
+\begin{itemize}[nosep]
+\item Level-$1$ targets $[\sigma_i, \tau_i]$ are commutators of transpositions
+  in $S_4$, hence lie in $[S_4, S_4] = A_4$.
+\item Level-$2$ targets $[[\sigma_1,\tau_1],[\sigma_2,\tau_2]]$ are
+  commutators of elements of $A_4$, hence lie in $[A_4, A_4] = V_4$.
+\end{itemize}
+Since $V_4$ is abelian, the outer commutator
+$[\alpha_A, \alpha_B] = e$ for any $\alpha_A, \alpha_B \in V_4$.
+This contradicts the requirement $[\alpha_A, \alpha_B] \neq e$ for a
+valid level-$3$ configuration.
+
+The result is also confirmed by exhaustive enumeration over the reduced
+configuration set (Script~$12$).
+\end{proof}
+
+\begin{theorem}[Level-$3$ Contraction]
+\label{thm:level23}
+For every valid level-$3$ configuration:
+\[
+\opn{\Dhat_3} \leq \lambda \coloneqq 0.0355.
+\]
+In particular, $\opn{\Dhat_3} < 1$ for all configurations in the fixed
+transposition template.
+\end{theorem}
+
+\begin{proof}
+For each valid level-$3$ pair $(\mathrm{quad}_A, \mathrm{quad}_B)$, we compute
+\[
+\Dhat_3 = \Dhat_{2,A} \cdot \Dhat_{2,B} \cdot \Dhat_{2,A}^\top \cdot \Dhat_{2,B}^\top
+\]
+over the full ordered universe: all five non-trivial, non-sign irreducible
+representations over the $3{,}240$ ordered level-$2$ blocks, i.e.\ $9{,}447{,}840$
+oriented pairs. Script~$20$ reduces this universe, with exact orbit accounting,
+to $39{,}591$ representatives under simultaneous $S_5$-conjugation and exchange
+of the two blocks.
+
+The five relevant irreducibles are carried by four integral carrier modules
+derived from permutation actions (with $M_9^{\mathrm{s}}$ obtained by a sign
+twist), so that no irrational basis is ever needed. Let $M_{41}$ be the sum-zero
+submodule of the natural action on the five points, which realises $(4,1)$; let
+$M_9$ be the sum-zero submodule of the action on the ten $2$-subsets, whose
+decomposition is $(4,1)\oplus(3,2)$; let $M_{9}^{\mathrm{s}}$ be the sign twist
+of $M_9$, carrying $(2,1,1,1)\oplus(2,2,1)$; and let
+$M_6 = \textstyle\bigwedge^2 M_{41}$, which realises $(3,1,1)$. The invariant
+Gram forms are $G = I + J$ on $M_{41}$, $M_9$, and $M_9^{\mathrm{s}}$ (with $J$
+the all-ones matrix on the ambient coordinates) and $\bigwedge^2(I+J)$ on $M_6$.
+Each of these decompositions is multiplicity-free, so the four carriers cover
+the five relevant irreducibles and an operator-norm bound on each carrier is
+exactly a bound on the irreducibles it contains. With $\Dhat_3 = N/2^{64}$ for
+an integer matrix $N$, the script verifies in exact integer arithmetic that
+\[
+  71^2\,2^{128}G-2000^2N^\top G N \succ 0
+\]
+for every representative, using fraction-free Bareiss leading principal
+minors. Hence $\opn{\Dhat_3}\le71/2000=0.0355$ exactly. A second all-irrep pass
+certifies the tighter global upper bound $0.0354002321$. For the bottleneck
+configuration, which lives on $M_{41}$, the script forms $S = N^\top G N$ and
+the pencil $p(y) = \det(yG - S)$; a Sturm chain isolates the largest root
+$y_{\max}$ of $p$ in exact rational arithmetic, and
+$\sigma_{\max}^2 = y_{\max}/2^{128}$, which gives
+\[
+  0.035400232083798851\ldots
+  \le \max\opn{\Dhat_3} \le 0.0354002321.
+\]
+The full certificate format---carriers, Gram forms, orbit accounting, and the
+integer pencil---is documented with the artifact
+(\texttt{CERTIFICATE\_LEVEL3.md}). Scripts~$17$ and~$18$ independently
+reproduce the same bottleneck numerically.
+
+The contraction occurs because:
+\begin{itemize}[nosep]
+\item If at least one sub-block has $\opn{\Dhat_2} < 1$, submultiplicativity gives
+  $\opn{\Dhat_3} \leq \opn{\Dhat_{2,A}}^2 \cdot \opn{\Dhat_{2,B}}^2 < 1$.
+\item If both sub-blocks have $\opn{\Dhat_2} = 1$ but preserve different directions
+  $v_A \neq v_B$ (guaranteed by \Cref{lem:mixing}), then $\Dhat_{2,A}$ maps $v_B$
+  to a vector with component $\abs{\langle v_A, v_B \rangle} = 1/4$ along $v_A$,
+  causing the product to contract. \qedhere
+\end{itemize}
+\end{proof}
+
+
+\subsection{Induction to All Levels}
+
+\begin{theorem}[Exponential Contraction]
+\label{thm:induction}
+For every fixed valid balanced transposition-template program for point functions
+$\CC_T$ over $\{0,1\}^\ell$ with $\ell = 2^d$, $d \geq 3$:
+\[
+\opn{\Dhat_d\bigl((4,1)\bigr)} \leq \lambda^{4^{d-3}},
+\]
+where $\lambda = 0.0355$.
+\end{theorem}
+
+\begin{proof}
+At depth $d+1$, the commutator structure gives
+$\Dhat_{d+1} = \Dhat_A \cdot \Dhat_B \cdot \Dhat_A^\top \cdot \Dhat_B^\top$.
+The sub-blocks are valid whenever the root configuration is valid: if a
+sub-block target were $e$, its ancestor commutator would be $[e,\cdot]=e$,
+forcing the root target to be trivial. Thus the level-$d$ bound applies to
+both children.
+By submultiplicativity of the operator norm and $\opn{M^\top} = \opn{M}$:
+\[
+\begin{aligned}
+\opn{\Dhat_{d+1}}
+&\leq \opn{\Dhat_A} \cdot \opn{\Dhat_B} \cdot
+        \opn{\Dhat_A^\top} \cdot \opn{\Dhat_B^\top} \\
+&= \opn{\Dhat_A}^2\,\opn{\Dhat_B}^2 \\
+&\leq \bigl(\lambda^{4^{d-3}}\bigr)^4
+ = \lambda^{4^{(d+1)-3}}.
+\end{aligned}
+\]
+The last inequality applies the uniform level-$d$ induction hypothesis
+separately to the potentially different children $A$ and~$B$.
+The base case $\opn{\Dhat_3} \leq \lambda$ is \Cref{thm:level23}.
+Iterating: $\opn{\Dhat_d} \leq \lambda^{4^{d-3}}$.
+\end{proof}
+
+
+\subsection{\texorpdfstring{Why $S_5$ is Structurally Unique}{Why S5 is Structurally Unique}}
+\label{sec:s5-unique}
+
+\Cref{thm:level23,thm:dim-obstruction} together provide a precise structural
+explanation of why $S_5$ is, among the symmetric groups we settle, the unique
+one where uniform level-$3$ spectral contraction succeeds in the standard representation.
+Three properties conspire:
+
+\begin{enumerate}[nosep]
+\item \textbf{$S_5$ is non-solvable.} This makes it possible to choose
+  non-commuting targets and conjugates so that the Barrington commutator
+  construction does not collapse to the identity. It does not mean that
+  arbitrary non-identity elements have nontrivial commutator.
+\item \textbf{$\mathrm{Stab}(k) \cong S_4$ is solvable with derived length
+  exactly~$3$.} The derived series
+  $S_4 \rhd A_4 \rhd V_4 \rhd \{e\}$ terminates at depth~$3$, which is
+  precisely the level of the commutator tree where contraction occurs.
+  This forces the direction-mixing mechanism of \Cref{lem:mixing}.
+\item \textbf{The preserved subspace dimension is at the critical half
+  threshold.} $\Dhat_1$ preserves $n-3 = 2$ of $n-1 = 4$
+  dimensions, exactly half of the ambient space, allowing two preserved
+  subspaces to be disjoint. For $n \geq 6$, the ratio
+  $(n-3)/(n-1) > 1/2$ makes disjoint placement impossible
+  (\Cref{thm:dim-obstruction}).
+\end{enumerate}
+
+These properties are not independent coincidences. The first two express a
+single structural condition on the point stabilizer: a level-$2$ block preserves
+a direction $v_k$ exactly when its transpositions fix $k$---that is, lie in
+$\mathrm{Stab}(k) \cong S_{n-1}$ (\Cref{lem:stab-char})---and the direction-mixing
+mechanism that breaks $v_k$ at level~$3$ is driven by the \emph{solvability} of
+$S_{n-1}$: for $S_5$, $\mathrm{Stab}(k) \cong S_4$ is solvable and its derived
+length ($3$) is exactly the level at which contraction occurs. $S_5$ is the
+largest symmetric group whose point stabilizer is solvable, and the settled cases
+fit this picture---$S_6, S_7$ (non-solvable stabilizer) admit norm-$1$
+configurations, and $n \geq 10$ is ruled out dimensionally. The present
+analysis does not decide $n \in \{8,9\}$. This
+points past the symmetric groups: it suggests that commutator-tree mixing in a
+finite group may be governed not by the group's size but by the solvability of
+the subgroups its leaves generate---a possible solvability barrier. Any extension
+of the present framework---to wider symmetric groups, or to
+any other finite group---must therefore confront this solvability structure
+rather than the size of the group, and must in each case specify the leaf class,
+the representation analysed, the fixed spaces of the resulting operators, and
+the subgroups the leaves generate.
+
+
+%% ===================================================================
+\section{Main Result}
+\label{sec:main}
+%% ===================================================================
+
+We now assemble the pieces---exact $T$-independence (\Cref{thm:t-indep}), the
+conditioning lemma (\Cref{lem:conditioning}), and the level-$3$ contraction with
+its inductive amplification (\Cref{thm:level23,thm:induction})---into the two
+quantitative guarantees.
+
+\begin{theorem}[Main Theorem]
+\label{thm:main}
+For every fixed valid balanced transposition-template program for point functions
+$\CC_T$ over $\{0,1\}^\ell$ with $\ell = 2^d$, $d \geq 3$:
+\begin{enumerate}[label=(\alph*),nosep]
+\item $D_T = D_{T'}$ for all $T, T' \in \{0,1\}^\ell$.
+\item $\dtv(D_T, \mathrm{Uniform}(S_5)) \leq 6 \cdot \lambda^{4^{d-3}} + 2^{-\ell(\ell-1)}$,
+  where $\lambda = 0.0355$ (the additive term is the conditioning loss of
+  \Cref{lem:conditioning}).
+\item In particular, $\dtv(D_T, U) = \negl(\ell)$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Part (a) is \Cref{thm:t-indep}. For part (b), the Fourier transform $\Dhat$
+computed below is that of the unconditional distribution $P_T$, so by
+\Cref{thm:ds}:
+\[
+\dtv(P_T, U)^2 \leq \frac{1}{4} \sum_{\rho \neq \mathrm{triv}} d_\rho \cdot
+\frob{\Dhat(\rho)}^2.
+\]
+By \Cref{rem:sign}, the sign representation contributes zero.
+For each remaining representation $\rho$ of dimension $d_\rho$,
+\Cref{prop:other_reps} gives a base case
+$\opn{\Dhat_3(\rho)} \leq \lambda_\rho < 1$ for all valid level-$3$
+configurations. The submultiplicativity argument of \Cref{thm:induction}
+applies to each $\rho$ independently (it uses only $\opn{M^\top} = \opn{M}$
+and submultiplicativity, which hold in any representation), yielding
+$\opn{\Dhat_d(\rho)} \leq \lambda_\rho^{4^{d-3}}$.
+Since $\frob{M}^2 \leq d_\rho \cdot \opn{M}^2$:
+\[
+\sum_{\rho} d_\rho \cdot \frob{\Dhat(\rho)}^2
+\leq \sum_{\rho} d_\rho^2 \cdot \lambda_\rho^{2 \cdot 4^{d-3}}
+\leq \Bigl(\sum_{\rho} d_\rho^2\Bigr) \cdot \lambda^{2 \cdot 4^{d-3}},
+\]
+where the exact global certificate gives
+$\max_\rho\lambda_\rho\le0.0354002321<0.0355$ and the standard representation
+contains the certified lower endpoint $0.035400232083798851\ldots$
+(\Cref{prop:other_reps} and \Cref{thm:level23}). We use the conservative
+$\lambda=0.0355$. Since
+$\sum_\rho d_\rho^2 = 4^2 + 5^2 + 6^2 + 5^2 + 4^2 = 118$:
+\[
+\dtv(P_T, U)^2 \leq \frac{118}{4} \cdot \lambda^{2 \cdot 4^{d-3}},
+\qquad
+\dtv(P_T, U) \leq \sqrt{\tfrac{118}{4}} \cdot \lambda^{4^{d-3}}
+< 6 \cdot \lambda^{4^{d-3}}.
+\]
+Finally, by \Cref{lem:conditioning},
+\[
+\dtv(D_T, U) \leq \dtv(P_T, U) + 2^{-\ell(\ell-1)}
+< 6 \cdot \lambda^{4^{d-3}} + 2^{-\ell(\ell-1)}.
+\]
+For part (c), since $\lambda < 1$ and $4^{d-3}$ grows exponentially in
+$d = \log_2 \ell$ (so $\lambda^{4^{d-3}}$ decays doubly-exponentially in $d$,
+i.e. like $\exp(-\Theta(\ell^2))$ in $\ell$), the bound is negligible in $\ell$.
+\end{proof}
+
+\subsection{The fresh-sample terminal-output experiment}
+\label{subsec:terminal}
+
+The Main Theorem controls one exactly specified experiment. We record its
+$q$-fold form, since that is the form a reduction would consume, and then
+delimit precisely what it does and does not cover.
+
+\begin{definition}[Fresh-sample terminal-output transcript]
+\label{def:terminal}
+Fix $\ell = 2^d$ with $d \geq 3$ and a target $T \in \{0,1\}^\ell$. The
+\emph{$q$-sample terminal-output transcript} of $\BP_T$ is
+$(\pi_1, \dots, \pi_q)$, where each $\pi_i \in S_5$ is the terminal output
+permutation of $\BP_T$ evaluated on a \emph{fresh, independent, uniformly
+random inconsistent path}; the $\pi_i$ are thus i.i.d.\ with law $D_T$, and we
+write $D_T^{\otimes q}$ for the law of the transcript.
+\end{definition}
+
+\begin{corollary}[Terminal-output indistinguishability]
+\label{cor:terminal}
+Let $\varepsilon(\ell) = 6\lambda^{4^{d-3}} + 2^{-\ell(\ell-1)}$ be the bound of
+\Cref{thm:main}(b), with $\lambda = 0.0355$. For every integer
+$q \in \mathbb{Z}_{\geq 1}$ and all $T, T' \in \{0,1\}^\ell$:
+\begin{enumerate}[label=(\alph*),nosep]
+\item $D_T^{\otimes q} = D_{T'}^{\otimes q}$ (exactly, not merely
+  statistically);
+\item $\dtv\bigl(D_T^{\otimes q},\, \mathrm{Uniform}(S_5)^{\otimes q}\bigr)
+  \leq \min\{1,\; q\,\varepsilon(\ell)\}$;
+\item for every target-independent randomised post-processing $K$ --- a Markov
+  kernel from $S_5^q$ to an arbitrary finite space, fixed without knowledge of
+  $T$ --- both conclusions persist:
+  $K D_T^{\otimes q} = K D_{T'}^{\otimes q}$ and
+  $\dtv\bigl(K D_T^{\otimes q},\, K\,\mathrm{Uniform}(S_5)^{\otimes q}\bigr)
+  \leq \min\{1,\; q\,\varepsilon(\ell)\}$.
+\end{enumerate}
+\end{corollary}
+
+\begin{proof}
+(a) By \Cref{thm:main}(a) the coordinate laws coincide, $D_T = D_{T'}$; the
+coordinates are independent, hence the product laws coincide.
+
+(b) Let $H_j$ be the hybrid law whose first $j$ coordinates are uniform on $S_5$
+and whose remaining $q-j$ coordinates are i.i.d.\ $D_T$, so that
+$H_0 = D_T^{\otimes q}$ and $H_q = \mathrm{Uniform}(S_5)^{\otimes q}$.
+Consecutive hybrids differ in one coordinate only, and total variation between
+product measures differing in a single independent coordinate equals the total
+variation of that coordinate, so $\dtv(H_j, H_{j+1}) =
+\dtv(D_T, \mathrm{Uniform}(S_5)) \leq \varepsilon(\ell)$ by \Cref{thm:main}(b).
+Telescoping with the triangle inequality over $j = 0, \dots, q-1$ gives
+$\dtv(D_T^{\otimes q}, \mathrm{Uniform}(S_5)^{\otimes q}) \leq q\,\varepsilon(\ell)$;
+the bound $1$ is trivial.
+
+(c) Total variation contracts under Markov kernels (data processing):
+$\dtv(K\mu, K\nu) \leq \dtv(\mu, \nu)$ for every kernel $K$ and all laws
+$\mu, \nu$. Since $K$ is fixed independently of $T$, part (a) gives
+$K D_T^{\otimes q} = K D_{T'}^{\otimes q}$, and data processing applied to
+part (b) gives the stated bound.
+\end{proof}
+
+\begin{remark}[Scope of \Cref{cor:terminal}]
+\label{rem:terminal-limits}
+\Cref{cor:terminal} concerns the terminal-output marginal under \emph{fresh,
+independent, uniformly random} inconsistent paths, together with
+target-independent post-processing of that transcript. Its hypotheses distinguish
+this experiment from three other kinds of observation:
+\begin{itemize}[nosep,leftmargin=1.2em]
+\item fixed, adversarially chosen, or adaptive paths, including choices based
+  on earlier outputs;
+\item correlated evaluations, such as evaluations sharing path bits;
+\item intermediate products or an encoded adversarial view, including Kilian
+  randomisation, encoded matrices, and graded encodings.
+\end{itemize}
+Applying the result to any of these settings requires an additional argument
+relating that observation to the stated experiment. The construction-level
+example in \Cref{sec:intro} describes this requirement for obfuscation.
+\end{remark}
+
+\begin{remark}[Non-power-of-$2$ input lengths]
+\label{rem:padding}
+The theorem is stated only for the complete balanced tree with $\ell = 2^d$.
+Padding by leaves that output the identity in both branches is not innocuous in
+a commutator tree: a subcommutator of the form $[g,e]$ collapses to the identity
+and can change the target of the parent subtree. Extending the result to
+arbitrary $\ell$ therefore requires a separate template and a separate count of
+consistent and inconsistent paths.
+\end{remark}
+
+For concrete values:
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+$\ell$ & Depth $d$ & $\opn{\Dhat_{(4,1)}}$ bound & $\dtv$ bound \\
+\midrule
+$8$   & $3$ & $3.55 \times 10^{-2}$ & $2.13 \times 10^{-1}$ \\
+$16$  & $4$ & $1.59 \times 10^{-6}$ & $9.53 \times 10^{-6}$ \\
+$32$  & $5$ & $6.36 \times 10^{-24}$ & $3.82 \times 10^{-23}$ \\
+$64$  & $6$ & $1.64 \times 10^{-93}$ & $9.83 \times 10^{-93}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+
+%% ===================================================================
+\section{Extensions and Open Problems}
+\label{sec:extensions}
+%% ===================================================================
+
+\subsection{Conjunctions with Wildcards}
+
+A conjunction $\CC_{T,W}$ with target $T \in \{0,1\}^\ell$ and wildcard set
+$W \subseteq [\ell]$ outputs $1$ iff $x_i = T_i$ for all $i \notin W$.
+In the branching program, wildcard positions output $\sigma_i$ for both
+bit values.  Obfuscation of conjunctions has been studied
+extensively~\cite{BVWW16,BKMPRS18,BLMZ19}, which is what motivates looking at
+this class here. For conjunctions we prove T-independence of the terminal
+marginal and report computational evidence for mixing.
+
+\Cref{thm:t-indep} extends directly to conjunctions:
+$D_{T,W} = D_{T',W}$ for all $T, T'$ with the same wildcard set $W$.
+The spectral contraction depends on the wildcard density $|W|/\ell$.
+Computational evidence shows strong contraction for $|W|/\ell \leq 1/2$,
+weakening contraction for $|W|/\ell = 3/4$, and no contraction for $|W|/\ell = 1$
+(the trivial function). The precise threshold is an open problem.
+
+
+\subsection{Beyond Point Functions}
+
+For general branching programs computing the same Boolean function via
+different constructions, ``strong universal mixing'' ($D_{C_0} = D_{C_1}$)
+is \textbf{false}: programs with different transposition assignments produce
+different distributions. However, ``weak universal mixing'' (both distributions
+converge to uniform independently) appears to hold: computational evidence shows
+equivalent circuits with different pair assignments achieving similar $\dtv$
+values. Proving this would extend the algebraic terminal-output property to a
+larger class of programs.
+
+Computational experiments reveal a stronger pattern.  For $\ell = 4$, two
+programs computing $\mathrm{AND}_4$ with different transposition pairs
+yield Fourier norms $\frob{\Dhat(4,1)}^2 = 0.147$ and $0.293$
+respectively --- clearly different distributions --- yet \emph{identical}
+total variation distances $\dtv = 0.309$ to uniform.  A sampled OR-of-AND
+experiment shows approximately equal distances for two structurally different
+implementations ($\dtv=0.1904$ versus $0.1923$). If this ``equidistance''
+phenomenon is general,
+it would mean that $\dtv(D_C, U)$ depends only on the Boolean function
+computed, not on the specific Barrington construction --- a property
+strictly stronger than weak universal mixing.
+
+
+\subsection{Generalization to Other Groups}
+
+The dimensional obstruction in \Cref{thm:dim-obstruction} prevents a direct
+extension of the $S_5$ direction-mixing proof to $S_n$ with $n \geq 6$.
+This motivates studying other representations, deeper levels of the
+commutator tree, and other groups. Finite matrix groups such as
+$\mathrm{GL}_n(\mathbb{F}_q)$ are natural
+mathematical candidates for such a move. The obstruction of
+\Cref{thm:dim-obstruction} is specific to the transposition leaf class and to
+the standard representation of $S_n$; it therefore does not decide the matrix
+case, which would first require fixing a leaf class and a representation before
+the analogous fixed-space count could be stated.
+
+Our proof follows a three-step program that is, in principle, portable:
+(1)~define the output distribution on inconsistent inputs,
+(2)~identify the bottleneck irreducible representation,
+(3)~discover geometric structure in the spectral obstructions.
+For $\mathrm{GL}_2(\mathbb{F}_q)$ with $q$ a small prime, the irreducible
+representations are completely classified (principal series, cuspidal,
+Steinberg, and one-dimensional characters), and the analogue of step~(2) is
+computationally feasible.  Determining whether the level-$2$ obstructions
+for matrix branching programs over $\mathrm{GL}_2(\mathbb{F}_q)$ exhibit
+geometric regularity analogous to the simplex in Observation~\ref{obs:simplex} would
+be a concrete first test of whether spectral contraction extends beyond
+symmetric groups.
+
+Establishing contraction in every nontrivial irreducible would yield an
+unconditional mixing theorem for such a template over a matrix group.
+A cryptographic application would then require the construction-specific
+connection described in \Cref{sec:intro}.
+
+
+\subsection{Deeper Levels and the Solvability Barrier}
+
+Two independent obstructions make $S_5$ special in the standard
+representation, and extending beyond $S_5$ requires confronting both.
+
+The first, discussed in \Cref{sec:s5-unique}, is dimensional
+(\Cref{thm:dim-obstruction}): for $n \geq 6$, the preserved subspace of
+$\Dhat_1$ has dimension $n-3$ in $\mathbb{R}^{n-1}$, forcing every
+level-$2$ quadruple to have $\opn{\Dhat_2} = 1$, which blocks level-$3$
+operator-norm contraction from following the same direction-mixing proof used
+for $S_5$.
+
+The second is algebraic. The proof of \Cref{lem:mixing} relies on the
+solvability of~$S_4$: the derived series $S_4 \rhd A_4 \rhd V_4 \rhd \{e\}$
+forces level-$2$ targets into $V_4$ (abelian), killing the outer commutator.
+For $S_n$ with $n \geq 6$, the relevant stabilizer is $S_{n-1}$, which is
+\emph{non-solvable}, so even if the dimensional obstruction could be
+sidestepped, the direction-mixing argument would require a fundamentally
+different mechanism.
+
+The analysis presented here leaves the following questions undecided.
+For $S_6$, $S_7$, and $n \geq 10$, where uniform contraction in the standard
+representation fails at level~$3$, one may ask whether a uniform bound
+$\opn{\Dhat_d} < 1$ holds at some level $d \geq 4$. For $S_8$ and $S_9$,
+the corresponding question starts at level~$3$. A separate path, for
+every $n \geq 6$, is to study \emph{non-standard representations}: whether some
+irreducible representation other than $(n-1,1)$ contracts at level~$3$. Note that a
+Diaconis--Shahshahani mixing bound requires controlling \emph{all} nontrivial
+irreducible representations simultaneously, so contraction in a single
+non-standard representation alone does not yield mixing; the bottleneck may
+differ from $(n-1,1)$. These constitute the most natural follow-up directions.
+
+
+%% ===================================================================
+\section{Computational Verification}
+\label{sec:computation}
+%% ===================================================================
+
+The proofs of \Cref{thm:level01,thm:level12} use exact symbolic algebraic
+arithmetic (implemented in \texttt{sympy}) with a verified orthonormal basis for
+the standard representation: that basis carries the radicals $\sqrt{2}$,
+$\sqrt{6}$, $\sqrt{12}$, $\sqrt{20}$, which \texttt{sympy} represents exactly, so
+the intermediate quantities are exact algebraic numbers (the reported Frobenius
+norms are rational). \Cref{thm:level23} uses an exact integer Gram-form
+certificate over the full ordered universe of level-$3$ configurations---
+$9{,}447{,}840$ oriented pairs across all five non-trivial, non-sign
+representations, reduced to $39{,}591$ symmetry orbits with exact accounting
+(Script~$20$). Scripts~$17$ and~$18$ provide independent full-universe
+\texttt{numpy} cross-checks.
+
+The accompanying reproducibility archive contains all $20$ verification
+scripts, the exact level-$3$ certificate, analytic proof notes, dependencies,
+and instructions for reproducing the checks.
+
+\begin{center}
+\begin{tabular}{clc}
+\toprule
+Script & Content & Method \\
+\midrule
+01 & Ambivalence of $S_5$ (similarity blindness) & Exhaustive \\
+02 & Collision analysis, $\ell = 4$ & Exhaustive \\
+03 & Collision scaling, $\ell = 4 \to 8$ & Sampled \\
+04 & Fourier spectral analysis & Exact + sampled \\
+05 & Barrington construction + Kilian obfuscation & Exhaustive \\
+06 & Contraction operator (unconditional distribution) & Analytic \\
+07 & T-independence proof verification & Exhaustive \\
+08 & Conjunctions with wildcards & Exhaustive \\
+09 & Universal mixing investigation & Exact + sampled \\
+10 & Complete spectral contraction proof & Exact + numerical \\
+11 & Eigenvector analysis (simplex discovery) & Numerical \\
+12 & Reduced level-$3$ census, standard representation & Numerical \\
+13 & Reduced level-$3$ census, all representations & Numerical \\
+14 & Obstruction checks ($S_5, S_6, S_7$) & Numerical + exact \\
+15 & Exact sympy proof of singular values of $\Dhat_1$ & Exact \\
+16 & Conditioning lemma, $\ell = 4$ & Exact \\
+17 & Ordered-orientation level-$3$ cross-check & Numerical \\
+18 & All-irreps ordered-orientation cross-check & Numerical \\
+19 & Ordered level-$2$ exact cross-check & Exact \\
+20 & Full-universe level-$3$ Gram certificate & Exact integer \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Scripts~10--13 provide reduced-orientation cross-checks for $S_5$; their
+numerical maxima are not uniform bounds over the full ordered universe.
+Scripts~$17$ and~$18$ cross-check all $9{,}447{,}840$ orientations numerically.
+Script~$20$ supplies the definitive proof-grade certificate: exact symmetry
+accounting followed by integer Gram-form inequalities for every relevant
+irreducible proves the $71/2000$ bound and the tighter global upper bound
+$0.0354002321$. Scripts~$14$ and~$15$ verify
+\Cref{thm:dim-obstruction}: Script~$14$ exhaustively enumerates the reduced
+level-$2$ and level-$3$ censuses of $S_6$ and $S_7$, reporting
+a maximum norm of~$1$ and also strictly contractive configurations. It verifies
+explicit norm-$1$ examples and exact Gram-form certificates for contractive
+examples in both groups. Script~$15$ gives the exact singular-value pattern
+$[\underbrace{1,\ldots,1}_{n-3}, 1/8, 0]$ of $\Dhat_1$ for $S_5, S_6, S_7$.
+Script~$16$ verifies the conditioning lemma for $\ell=4$ over all $2^{16}$ paths
+in exact rational arithmetic. Scripts~$01$--$09$, $11$--$13$, $17$--$19$
+provide additional cross-validation.
+
+
+\bibliography{refs}
+
+\end{document}

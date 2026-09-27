@@ -1,0 +1,15 @@
+# Local build products and Python caches
+.DS_Store
+__pycache__/
+*.py[cod]
+.venv/
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.meta
+*.out
+*.synctex.gz
+*.iacrmetadata
