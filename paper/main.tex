@@ -243,8 +243,8 @@ exact symbolic algebra (levels~$0$--$2$), analytic structure and exact integer
 certification (level~$3$), with independent exhaustive numerical cross-checks,
 and analytic induction (levels~$4$+). The key discovery
 that bridges levels~$2$ and~$3$ is the simplex structure of the
-preserved directions: the $270$ out of $405$ level-$2$ configurations
-with operator norm~$1$ each preserve one of exactly $5$ directions in
+preserved directions: in the reduced level-$2$ census, the $270$ out of $405$
+configurations with operator norm~$1$ each preserve one of exactly $5$ directions in
 $\mathbb{R}^4$, forming a regular simplex with pairwise $\abs{\cos\theta} = 1/4$.
 An algebraic proof shows that valid level-$3$ configurations cannot share a
 preserved direction: within the stabilizer $\mathrm{Stab}(k) \cong S_4$,
@@ -753,13 +753,14 @@ maximum $67586345/67108864$.
 \label{sec:simplex}
 
 Despite the Frobenius-norm contraction at level~$2$, the operator norm
-$\opn{\Dhat_2}$ equals $1$ for $270$ of the $405$ valid quadruples,
+$\opn{\Dhat_2}$ equals $1$ for $270$ of the $405$ valid quadruples in the reduced census,
 blocking a naive submultiplicativity argument for higher levels.
 The following observation explains the structure of this obstruction.
 
 \begin{observation}[Simplex Structure]
 \label{obs:simplex}
-The $270$ quadruples with $\opn{\Dhat_2} = 1$ each preserve exactly one direction
+In the reduced census, the $270$ quadruples with $\opn{\Dhat_2} = 1$
+each preserve exactly one direction
 in $\mathbb{R}^4$ (as the eigenvector of $\Dhat_2^\top \Dhat_2$ with eigenvalue $1$).
 These directions are precisely the projections of the $5$ standard basis vectors
 $e_0, \ldots, e_4 \in \mathbb{R}^5$ onto the hyperplane $V = \{\sum v_i = 0\}$:
@@ -772,7 +773,7 @@ pairwise inner products $\abs{\langle v_i, v_j \rangle} = 1/4$ for all $i \neq j
 Each direction is preserved by exactly $54$ quadruples (perfectly symmetric).
 \end{observation}
 
-Observation~\ref{obs:simplex} is an exhaustive census. The following lemma supplies the
+Observation~\ref{obs:simplex} exhausts this reduced census. The following lemma supplies the
 structural implication that the level-$3$ argument actually uses: preserving
 $v_k$ forces every leaf of the block to fix the point $k$.
 
@@ -927,8 +928,8 @@ not just worst-case Frobenius contraction.
 \label{lem:mixing}
 For every valid level-$3$ configuration $(\mathrm{quad}_A, \mathrm{quad}_B)$
 in which both sub-blocks have $\opn{\Dhat_2} = 1$, the two sub-blocks
-preserve \textbf{different} directions. Specifically, of the $29160$ such pairs,
-zero share the same preserved direction.
+preserve \textbf{different} directions. In the reduced census, there are
+$29160$ such pairs, none sharing the same preserved direction.
 \end{lemma}
 
 \begin{proof}
@@ -954,7 +955,7 @@ This contradicts the requirement $[\alpha_A, \alpha_B] \neq e$ for a
 valid level-$3$ configuration.
 
 The result is also confirmed by exhaustive enumeration over the reduced
-configuration set (Script~$12$).
+configuration set (Script~$11$).
 \end{proof}
 
 \begin{theorem}[Level-$3$ Contraction]
@@ -1400,7 +1401,7 @@ the intermediate quantities are exact algebraic numbers (the reported Frobenius
 norms are rational). \Cref{thm:level23} uses an exact integer Gram-form
 certificate over the full ordered universe of level-$3$ configurations---
 $9{,}447{,}840$ oriented pairs across all five non-trivial, non-sign
-representations, reduced to $39{,}591$ symmetry orbits with exact accounting
+representations, partitioned into $39{,}591$ symmetry orbits with exact accounting
 (Script~$20$). Scripts~$17$ and~$18$ provide independent full-universe
 \texttt{numpy} cross-checks.
 
@@ -1439,6 +1440,7 @@ Script & Content & Method \\
 
 Scripts~10--13 provide reduced-orientation cross-checks for $S_5$; their
 numerical maxima are not uniform bounds over the full ordered universe.
+The level-$3$ census in Scripts~$12$--$13$ contains $73{,}810$ retained pairs.
 Scripts~$17$ and~$18$ cross-check all $9{,}447{,}840$ orientations numerically.
 Script~$20$ supplies the definitive proof-grade certificate: exact symmetry
 accounting followed by integer Gram-form inequalities for every relevant
