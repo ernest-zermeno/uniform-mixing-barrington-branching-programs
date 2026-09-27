@@ -2,12 +2,12 @@
   "sources.zip": {
     "after-hyperref.sty": "47e6571e96692910e817e4876bbeea9357067ce92fcfc4b88e84e4ca026fdb48",
     "iacrcc.cls": "871459a12bc0f41f1efe20b198b296e334af6bbb274d51ad37fa91a484cf5eca",
-    "main.tex": "93fe3e2c7a50879e59efa9538828dada5f9f2df7029997a1d0d7bd1711af07aa",
+    "main.tex": "565c827bf3fa652140af54f8ad1b583c7b5b9e2a78fb6acebc8ec72297d069a3",
     "refs.bib": "15111676d7e97ac6dc37080e1550be9019fe7608a8fba118d2f54fe7217f9256"
   },
   "artifact.zip": {
     "CERTIFICATE_LEVEL3.md": "aa69c47d631c67533c78a00f5b1ddb0f4ff0354391a335a29f38c0ebeb324797",
-    "LICENSE": "e93f420c86c91f8ec7e73752fef1f99158e2445428ea43197ddf823001e1507e",
+    "LICENSE": "2796e72741f2722ecf23d8c74d9899c6aea47a397c3212cb353b68996f6b9c10",
     "README.md": "6074217e958b7167aa0102d41708587f91c5187f6db9681bc12f736d0e9c7ca4",
     "THEOREM_dimensional_obstruction.md": "f126f29ce72680e50ff17af44433369fa8914fed2c46754e8b1d60704b3039b3",
     "requirements.txt": "9101128bb786a4dab198b7bb31109f469ed9902ad473d2b1f4b2f1b1b4b5470a",

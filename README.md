@@ -1,6 +1,6 @@
 # Uniform Mixing in Barrington Branching Programs
 
-Ernest Darell Zermeno — Universidad Panamericana.
+Ernest Darell Zermeño — Universidad Panamericana.
 
 Accepted in **IACR Communications in Cryptology, Volume 3, Issue 3**.
 This repository contains the final-version preparation of September 26, 2026.
