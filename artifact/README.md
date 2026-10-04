@@ -23,7 +23,8 @@ computational verification cited in the paper.
 
 ## How to run
 
-Use Python 3.9 or later:
+Use Python 3.9 or later. The final checks were run with Python 3.13,
+numpy 2.4 and sympy 1.14:
 
 ```bash
 pip install -r requirements.txt

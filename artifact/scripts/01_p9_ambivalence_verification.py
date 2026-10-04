@@ -8,8 +8,7 @@ REASON: S_5 is ambivalent — every element is conjugate to its inverse.
 Therefore π and π⁻¹ have identical cycle type, trace, characteristic
 polynomial, and all similarity invariants.
 
-Referenced in paper: Section 3.4.3 (Proposition: Universal Blindness),
-                     Section 5.1
+Referenced in paper: Section 7 (Computational Verification, script table)
 """
 
 from itertools import permutations

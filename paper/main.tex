@@ -137,7 +137,8 @@ exactly this sampling law. The contribution is therefore a mathematical result
 about Barrington programs motivated by obfuscation.
 
 \paragraph{A construction-level illustration.}
-The GGH-style candidate of Garg et al.~\cite[full version, Sections~4.1--4.2]{GGH+13}
+The GGH-style candidate of Garg, Gentry, Halevi, Raykova, Sahai, and
+Waters~\cite[full version, Sections~4.1--4.2]{GGH+13}
 illustrates the objects a security analysis must relate. Its public garbled
 program contains encodings of randomized step matrices for the available input
 choices, encoded endpoint vectors, a parallel dummy program, and public encoding
@@ -184,9 +185,9 @@ conjunctions with a fixed wildcard set. \Cref{sec:extensions} presents evidence
 for mixing in that setting and questions about other programs and finite groups.
 
 \paragraph{Related work.}
-Barak et al.~\cite{BGHSV01} showed that black-box obfuscation is impossible
-for general circuits, motivating the weaker notion of indistinguishability
-obfuscation.
+Black-box obfuscation is impossible for general circuits, as shown by Barak,
+Goldreich, Impagliazzo, Rudich, Sahai, Vadhan, and Yang~\cite{BGHSV01}; this
+motivates the weaker notion of indistinguishability obfuscation.
 The first iO candidate from branching programs~\cite{GGH+13} was followed
 by constructions for specific function
 classes: lockable obfuscation for point functions from
@@ -229,7 +230,7 @@ Boolean outputs of read-once programs.  Our analysis instead uses Fourier
 analysis on $S_5$ (the output group) to bound total variation of the
 group-valued output distribution of multi-read programs --- a fundamentally
 different analytic object requiring different tools.
-Canetti et al.~\cite{CCMR24} recently proposed a ``local mixing''
+Canetti, Chamon, Mucciolo, and Ruckenstein~\cite{CCMR24} recently proposed a ``local mixing''
 framework for general-purpose obfuscation based on reversible circuits and
 thermodynamic arguments; their mixing notion is structural (circuit-level),
 whereas ours is distributional (output-group-level), making the two
@@ -1405,7 +1406,9 @@ representations, partitioned into $39{,}591$ symmetry orbits with exact accounti
 (Script~$20$). Scripts~$17$ and~$18$ provide independent full-universe
 \texttt{numpy} cross-checks.
 
-The accompanying reproducibility archive contains all $20$ verification
+The reproducibility archive is available at
+\url{https://github.com/ernest-zermeno/uniform-mixing-barrington-branching-programs}.
+It contains all $20$ verification
 scripts, the exact level-$3$ certificate, analytic proof notes, dependencies,
 and instructions for reproducing the checks.
 
@@ -1455,6 +1458,12 @@ $[\underbrace{1,\ldots,1}_{n-3}, 1/8, 0]$ of $\Dhat_1$ for $S_5, S_6, S_7$.
 Script~$16$ verifies the conditioning lemma for $\ell=4$ over all $2^{16}$ paths
 in exact rational arithmetic. Scripts~$01$--$09$, $11$--$13$, $17$--$19$
 provide additional cross-validation.
+
+
+\section*{Acknowledgements}
+
+Generative AI tools were used for editing, proofreading, and assistance with
+the verification scripts. The author takes full responsibility for the content.
 
 
 \bibliography{refs}

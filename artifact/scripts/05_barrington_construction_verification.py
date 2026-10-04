@@ -6,9 +6,8 @@ VERIFIES: All rejects produce identity permutation.
 VERIFIES: Kilian obfuscation over Z_n preserves correctness (ℓ=4).
 VERIFIES: Bookend scalar compression works (accept → s, reject → random).
 
-Referenced in paper: Section 3.2 (Barrington construction),
-                     Section 3.3 (Kilian obfuscation),
-                     Section 5.4.2 (construction verification table)
+Referenced in paper: Section 2.1 (Branching Programs and Barrington's Theorem),
+                     Section 7 (script table)
 """
 
 import random, math, time

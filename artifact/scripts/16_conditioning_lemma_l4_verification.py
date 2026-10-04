@@ -32,7 +32,8 @@ in exact rational arithmetic.
 Backs the conditioning lemma (replaces former Remark 5) and the Main-Theorem
 additive term d_TV(D_T, U) <= 6 . lambda^{4^{d-3}} + 2^{-l(l-1)}.
 
-Referenced in paper: Section 4 (Main Theorem), conditioning lemma.
+Referenced in paper: Section 4 (conditioning lemma),
+                     Section 5 (Main Theorem).
 """
 
 from itertools import product, permutations

@@ -9,7 +9,8 @@ CONFIRMS: Geometric decay rate ≈ 0.16 per level (spectral gap ≈ 0.84).
 Uses the Upper Bound Lemma (Diaconis-Shahshahani):
   d_TV(D_T, U)² ≤ (1/4) Σ_{ρ≠trivial} d_ρ · ||D̂_T(ρ)||²_F
 
-Referenced in paper: Section 5.4 (all subsections)
+Referenced in paper: Section 2.4 (Upper Bound Lemma),
+                     Section 4 (Spectral Contraction)
 """
 
 import numpy as np

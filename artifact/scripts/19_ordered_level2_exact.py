@@ -3,8 +3,8 @@
 19_ordered_level2_exact.py
 ==========================
 
-Exact rational cross-check for Theorem 4.5 in the ordered-orientation
-universe.
+Exact rational cross-check for the Level-2 Contraction theorem (Section 4.3)
+in the ordered-orientation universe.
 
 The reduced scan in Script 10 enumerates 30 unordered adjacent level-1 pairs
 and 405 valid level-2 quadruples.  The theorem statement is naturally ordered:

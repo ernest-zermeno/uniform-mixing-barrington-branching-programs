@@ -14,7 +14,8 @@ DISCOVERS: Among the 29,160 both-problematic level-3 pairs, ZERO share
 the same preserved direction. This is the key that enables the level-3
 contraction proof (Theorem 3 in Script 10).
 
-Referenced in paper: Section 4.3 (simplex structure observation)
+Referenced in paper: Section 4.4 (simplex structure observation),
+                     Section 4.5 (Direction Mixing lemma)
 """
 
 import numpy as np

@@ -5,8 +5,7 @@ DISCOVERS: Collision rate converges from 0.38% (ℓ=4) to 0.83% ≈ 1/120 (ℓ=8
 CONFIRMS:  The distribution approaches uniform over S_5 as tree depth grows.
 CONFIRMS:  Rate is T-independent across multiple targets for ℓ=8.
 
-Referenced in paper: Section 3.5.7 (collision rate table),
-                     Section 5.3
+Referenced in paper: Section 7 (Computational Verification, script table)
 """
 
 from itertools import permutations

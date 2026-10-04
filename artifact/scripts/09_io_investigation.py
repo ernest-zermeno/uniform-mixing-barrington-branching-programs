@@ -28,7 +28,7 @@ v2 FIX: Corrected bp_retarget multiplication order.
     old_tgt · transform = old_tgt · inv(old_tgt) · new_perm = new_perm  ✓
   The old code gave old_tgt · new_perm · inv(old_tgt) ≠ new_perm.
 
-Referenced in paper: Section 3.8 (Problem 7), Section 5.6
+Referenced in paper: Section 6.2 (Beyond Point Functions)
 """
 
 import numpy as np

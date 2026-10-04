@@ -3,7 +3,7 @@
 Ernest Darell Zermeño — Universidad Panamericana.
 
 Accepted in **IACR Communications in Cryptology, Volume 3, Issue 3**.
-This repository contains the final-version preparation of September 26, 2026.
+This repository contains the final-version preparation of October 3, 2026.
 Editorial production is still pending; this is not a claim that the article
 has already been published or that copy-editing has been completed.
 

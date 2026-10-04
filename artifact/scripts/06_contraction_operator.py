@@ -35,7 +35,8 @@ NOTE ON CONDITIONING:
   P_T are contraction factors for the conditioned distribution D_T; only the
   final total-variation bound is transferred by the lemma.
 
-Referenced in paper: Section 5.5 (Path to formal proof)
+Referenced in paper: Section 4 (conditioning lemma),
+                     Section 4.1 (projections and the Fourier domain)
 """
 
 import numpy as np

@@ -9,8 +9,7 @@ FINDS: 100% wildcards (trivial function) is the only case without contraction.
 A conjunction CC_{T,W}(x) = 1 iff x[i]=T[i] for all i not in W.
 Wildcard positions output σ for BOTH bit values.
 
-Referenced in paper: Section 5.5 (all subsections),
-                     Section 3.8 (Problem 6, partially resolved)
+Referenced in paper: Section 6.1 (Conjunctions with Wildcards)
 """
 
 import numpy as np

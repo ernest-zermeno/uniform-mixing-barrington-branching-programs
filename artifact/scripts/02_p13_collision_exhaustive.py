@@ -5,8 +5,8 @@ DISCOVERS: 283 inconsistent paths produce π_accept for ℓ=4.
 DISCOVERS: The collision count is EXACTLY 283 for ALL 16 targets.
 DISCOVERS: The collision rate (0.43%) is below uniform (1/120 = 0.83%).
 
-Referenced in paper: Section 3.5.7 (T-independence property),
-                     Section 5.3
+Referenced in paper: Section 3 (Exact T-Independence),
+                     Section 7 (script table)
 """
 
 from itertools import permutations

@@ -28,7 +28,8 @@ COMBINED WITH T-INDEPENDENCE (Script 07):
   This settles the fixed-template Uniform T-Independence question for the
   fixed transposition-template Barrington point-function program over S_5.
 
-Referenced in paper: Section 4 (main theorem)
+Referenced in paper: Section 4 (Spectral Contraction),
+                     Section 5 (Main Result)
 """
 
 import numpy as np

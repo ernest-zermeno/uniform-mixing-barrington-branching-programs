@@ -81,9 +81,8 @@ identically (both are σ), so the output is unchanged. The proof
 goes through with S restricted to non-wildcard differing positions.
 ════════════════════════════════════════════════════════════════
 
-Referenced in paper: Section 3.5.7 (T-independence property),
-                     Section 5.4.1 (algebraically exact),
-                     Section 6 (Conclusions)
+Referenced in paper: Section 3 (Exact T-Independence),
+                     Section 6.1 (Conjunctions with Wildcards)
 """
 
 from itertools import permutations
